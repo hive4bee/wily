@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.coffee.mapper.AdminMapper">
+	<select id="confirmLogin" resultType="int">
+		SELECT COUNT(*) FROM admin WHERE id=#{id} AND pwd=#{pwd}
+	</select>
+	
+	<select id="getNextPnum" resultType="int">
+		SELECT products_seq.nextval from dual
+	</select>
+	
+	<insert id="insertProduct">
+		INSERT INTO products
+		VALUES(#{pnum}, #{pcode}, #{pname}, #{pprice}, #{pcategory}, #{pcomment}, SYSDATE, 'n')
+	</insert>
+	
+	<insert id="insertImage">
+		INSERT INTO images
+		VALUES(#{uuid}, #{uploadpath}, #{filename}, #{pnum})
+	</insert>
+	
+	<select id="getCoffeeList" resultType="org.coffee.domain.ProductsDTO">
+		<![CDATA[
+			SELECT *
+			FROM (
+			    SELECT /*+ INDEX_DESC(products products_pnum_pk) */
+			        ROWNUM rn, pnum, pcode, pname, pprice, pcategory, pregdate, phide
+			    FROM products
+			    WHERE rownum < #{startRecord}+10 AND pcategory='커피'
+			)
+			WHERE rn >= #{startRecord}
+		]]>
+	</select>
+	
+	<select id="getCoffeeTotalCount" resultType="int">
+		SELECT COUNT(*) FROM products WHERE pcategory='커피'
+	</select>
+	
+	<select id="checkOrderQuantity" resultType="int">
+		SELECT COUNT(*) FROM orders WHERE ostatus like '주문접수'
+	</select>
+	
+	<select id="getOrderList" resultType="org.coffee.domain.OrdersDTO">
+		<![CDATA[
+			SELECT *
+			FROM (
+				SELECT * FROM orders
+				WHERE ostatus='주문접수'
+				ORDER BY oregdate DESC
+			)
+			WHERE ROWNUM <=3
+		]]>
+	</select>
+	
+	<select id="showAllOrders" resultType="org.coffee.domain.OrderProductDTO">
+		SELECT p.pnum, p.pname, p.pprice, i.uploadpath, i.uuid, i.filename, o.onum, o.oqty, m.oregdate, m.oaddr, m.ostatus, m.mid, m.odate, m.otime
+		FROM products p JOIN images i ON(p.pnum=i.pnum) JOIN orders_detail o ON(i.pnum=o.pnum) JOIN orders m ON(m.onum=o.onum)
+		WHERE m.ostatus='주문접수'
+		ORDER BY m.onum DESC
+	</select>
+	
+	<update id="changeStatus">
+		UPDATE orders
+		SET ostatus = #{ostatus}
+		WHERE onum = #{onum}
+	</update>
+	
+	<select id="viewProduct" resultType="org.coffee.domain.JoinedDTO">
+		SELECT p.pnum, p.pname, p.pcode, p.pname, p.pprice, p.pcategory, p.pcomment, p.phide, i.uploadpath, i.uuid, i.filename
+		FROM products p JOIN images i
+		ON (p.pnum = i.pnum)
+		WHERE p.pnum = #{pnum}
+	</select>
+	
+	<delete id="deleteProduct">
+		DELETE FROM products
+		WHERE pnum = #{pnum}
+	</delete>
+	
+	<delete id="deleteImage">
+		DELETE FROM images
+		WHERE pnum = #{pnum}
+	</delete>
+	
+	<update id="modifyPro1">
+		UPDATE products
+		SET pcode=#{pcode}, pname=#{pname}, pprice=#{pprice}, pcomment=#{pcomment}, phide=#{phide}
+		WHERE pnum=#{pnum}
+	</update>
+	
+	<update id="updateImage">
+		UPDATE images
+		SET uuid=#{uuid}, uploadpath=#{uploadpath}, filename=#{filename}
+		WHERE pnum=#{pnum}
+	</update>
+	
+	<update id="changeH">
+		UPDATE products
+		SET phide=#{phide}
+		WHERE pnum=#{pnum}
+	</update>
+</mapper>
