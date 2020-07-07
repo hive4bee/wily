@@ -2,6 +2,7 @@
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <c:set var="ctxpath" value="${pageContext.request.contextPath}" />
 <!DOCTYPE html>
 <html>
@@ -108,8 +109,13 @@
         <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Login Screens:</h6>
-            <a class="collapse-item" href="login.html">로그인</a>
-            <a class="collapse-item" href="${ctxpath}/member/register">회원가입</a>
+            <sec:authorize access="isAnonymous()">
+	            <a class="collapse-item" href="${ctxpath}/member/loginForm">로그인</a>
+            	<a class="collapse-item" href="${ctxpath}/member/register">회원가입</a>
+            </sec:authorize>
+            <sec:authorize access="isAuthenticated()">
+            	<a class="collapse-item" href="${ctxpath}/member/logout">로그아웃</a>
+            </sec:authorize>
             <a class="collapse-item" href="forgot-password.html">Forgot Password</a>
             <div class="collapse-divider"></div>
             <h6 class="collapse-header">Other Pages:</h6>

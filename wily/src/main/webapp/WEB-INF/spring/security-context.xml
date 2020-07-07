@@ -4,12 +4,33 @@
 	xmlns:security="http://www.springframework.org/schema/security"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+	<bean id="customLoginSuccess" class="org.wily.security.CustomLoginSuccessHandler"></bean>
+	<bean id="customAccessDenied" class="org.wily.security.CustomAccessDeniedHandler"></bean>
+	<bean id="bcryptPasswordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
+	<bean id="customUserDetailsService" class="org.wily.security.CustomUserDetailsService"></bean>
 	
 	<security:http>
-		<security:form-login />
-	</security:http>
-	<security:authentication-manager>
+	
+		<security:intercept-url pattern="/wily/*" access="permitAll" />
+	
+		<security:access-denied-handler ref="customAccessDenied"/>
 		
+		<security:form-login login-page="/wily/member/loginForm" 
+					login-processing-url="/login"
+					authentication-success-handler-ref="customLoginSuccess"
+					username-parameter="mid"
+					password-parameter="mpw"
+		/>
+		
+		 <!-- 
+		<security:form-login login-page="/wily/member/loginForm"/>
+		 -->
+	</security:http>
+	
+	<security:authentication-manager>
+		<security:authentication-provider user-service-ref="customUserDetailsService">
+			<!-- <security:password-encoder ref="bcryptPasswordEncoder"/> -->
+		</security:authentication-provider>
 	</security:authentication-manager>
 </beans>
 <!-- 

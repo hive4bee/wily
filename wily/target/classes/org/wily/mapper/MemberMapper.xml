@@ -13,9 +13,42 @@
 		VALUES(#{receiver},#{authKey})
 	</insert>
 	
+	<insert id="createAuthentication">
+		INSERT INTO member_auth
+		VALUES(#{mid},'ROLE_MEMBER')
+	</insert>
+	
 	<update id="modifyStatus">
 		UPDATE member
 		SET mstatus=1
 		WHERE memail=#{memail}
 	</update>
+	
+	<select id="checkUser" resultType="int">
+		SELECT COUNT(*) FROM member WHERE mid=#{mid} AND mpw=#{mpw}
+	</select>
+	
+	<resultMap type="org.wily.domain.MemberDTO" id="memberMap">
+		<id property="mno" column="mno"/>
+		<result property="mid" column="mid"/>
+		<result property="mpw" column="mpw"/>
+		<result property="mfname" column="mfname"/>
+		<result property="mlname" column="mlname"/>
+		<result property="memail" column="memail"/>
+		<result property="mregdate" column="mregdate"/>
+		<result property="mstatus" column="mstatus"/>
+		<collection property="authList" resultMap="authMap"></collection>
+	</resultMap>
+	
+	<resultMap type="org.wily.domain.AuthVO" id="authMap">
+		<result property="mid" column="mid"/>
+		<result property="auth" column="auth"/>
+	</resultMap>
+	
+	<select id="read" resultMap="memberMap">
+		SELECT m.mno, m.mid, m.mpw, m.mfname, m.mlname, m.memail, m.mregdate, m.mstatus, a.auth
+		FROM member m LEFT OUTER JOIN member_auth a
+		ON(m.mid=a.mid)
+		WHERE m.mid=#{userid}
+	</select>
 </mapper>
