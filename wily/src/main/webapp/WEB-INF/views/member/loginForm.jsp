@@ -51,7 +51,7 @@
                   <div class="text-center">
                     <h1 class="h4 text-gray-900 mb-4">Welcome Back!</h1>
                   </div>
-                  <form id="pkc" class="user" method="post" action="/wily/login">
+                  <form id="pkc" class="user" method="post" action="">
                     <div class="form-group">
                       <input type="text" class="form-control form-control-user" name="mid" id="mid" placeholder="ID를 입력하세요">
                     </div>
@@ -141,30 +141,30 @@
 				msgmsg[1].innerText="";
 			}
 			if(mid!="" && mpw!=""){
+				/* 
 				var formObj=$("#pkc");
 				formObj.submit();
-				/* 
+				 */
+				
 				$.ajax({
 					type:"POST",
-					//url:"/wily/member/loginPro",
-					//beforeSend:function(xhr){
-					//	xhr.setRequestHeader(csrfHeaderName, csrfTokenValue);
-					//},
-					data:JSON.stringify({mid:mid,mpw:mpw}),
-					contentType:"application/json; charset=utf-8",
-					success:function(result,status,xhr){
-						self.location="/wily";
-						if(result=='success'){
-							//alert("....");
-							var formObj=$("#pkc");
-							//formObj.action="/login"
-							formObj.submit();
+					url:"/wily/login",
+					beforeSend:function(xhr){
+						xhr.setRequestHeader(csrfHeaderName, csrfTokenValue);
+					},
+					//data:JSON.stringify({mid:mid,mpw:mpw}),
+					//contentType:"application/json; charset=utf-8",
+					data:{mid:mid,mpw:mpw},
+					dataType:"json",
+					success:function(rdto,status,xhr){
+						if(rdto.status=='OK'){
+							self.location=rdto.url;
 						}else{
 							document.getElementsByClassName("msgmsg")[1].innerText="존재하지 않는 유저이거나 비밀번호가 틀렸습니다.";
 						}
 					}
 				});
-				 */
+				
 			}
 		});
 	});

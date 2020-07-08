@@ -114,7 +114,7 @@
             	<a class="collapse-item" href="${ctxpath}/member/register">회원가입</a>
             </sec:authorize>
             <sec:authorize access="isAuthenticated()">
-            	<a class="collapse-item" href="${ctxpath}/member/logout">로그아웃</a>
+            	<a class="collapse-item logoutBtn" href="#">로그아웃</a>
             </sec:authorize>
             <a class="collapse-item" href="forgot-password.html">Forgot Password</a>
             <div class="collapse-divider"></div>
@@ -338,3 +338,7 @@
 
         </nav>
         <!-- End of Topbar -->
+        <form id="logoutForm" method="post" action="/wily/customLogout">        
+        	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
+        </form>
+        

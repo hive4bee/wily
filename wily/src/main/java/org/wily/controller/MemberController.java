@@ -1,5 +1,7 @@
 package org.wily.controller;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -61,8 +63,8 @@ public class MemberController {
 				new ResponseEntity<>("fail",HttpStatus.OK);
 	}
 	@GetMapping("/loginForm")
-	public void loginForm() {
-		
+	public void loginForm(HttpServletRequest request) {
+		log.info("getRequestURI(): "+request.getRequestURI());
 	}
 	@ResponseBody
 	@PostMapping("/loginPro")
@@ -76,5 +78,9 @@ public class MemberController {
 	public void accessDenied(Authentication auth, Model model) {
 		log.info("access Denied...."+auth);
 		model.addAttribute("msg","Access Denied....");
+	}
+	@GetMapping("/logoutForm")
+	public void logout() {
+		
 	}
 }

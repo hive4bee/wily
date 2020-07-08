@@ -10,6 +10,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.wily.security.domain.RedirectDTO;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.log4j.Log4j;
 
@@ -29,9 +32,13 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
 		log.warn("ROLE NAMES: " + roleNames);
 		
 		if(roleNames.contains("ROLE_MEMBER")) {
-			response.sendRedirect("/wily/");
-			return;
+			ObjectMapper objm = new ObjectMapper(); 
+			RedirectDTO rdto = new RedirectDTO();
+			rdto.setStatus("OK");
+			rdto.setUrl("/wily/");
+			response.getWriter().print(objm.writeValueAsString(rdto));
+			response.getWriter().flush();
 		}
-		response.sendRedirect("/wily/");
+		//response.sendRedirect("/wily/");
 	}
 }
