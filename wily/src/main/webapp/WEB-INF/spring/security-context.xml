@@ -13,10 +13,11 @@
 	<security:http auto-config="true" use-expressions="true">
 	
 		<security:intercept-url pattern="/wily/*" access="permitAll" />
+		<security:intercept-url pattern="/board/writeForm"  access="hasRole('ROLE_MEMBER')" />
 	
 		<security:access-denied-handler ref="customAccessDenied"/>
 		
-		<security:form-login login-page="/wily/member/loginForm" 
+		<security:form-login login-page="/member/loginForm" 
 					authentication-success-handler-ref="customLoginSuccess"
 					authentication-failure-handler-ref="customLoginFailure"
 					username-parameter="mid"

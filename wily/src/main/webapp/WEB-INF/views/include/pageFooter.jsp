@@ -40,6 +40,7 @@
   <!-- Page level custom scripts -->
   <script src="/wily/resources/js/demo/chart-area-demo.js"></script>
   <script src="/wily/resources/js/demo/chart-pie-demo.js"></script>
+  
   <script>
 			$(".logoutBtn").on("click", function(e){
 				e.preventDefault();
