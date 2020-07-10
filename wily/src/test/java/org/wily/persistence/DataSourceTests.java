@@ -13,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 
 import lombok.Setter;
 import lombok.extern.log4j.Log4j;
@@ -22,6 +23,7 @@ import lombok.extern.log4j.Log4j;
 //Java 설정을 이용하는 경우
 //@ContextConfiguration(classes= {RootConfig.class})
 @Log4j
+@WebAppConfiguration
 public class DataSourceTests {
 
   @Setter(onMethod_ = { @Autowired })

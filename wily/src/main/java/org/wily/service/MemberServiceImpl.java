@@ -12,7 +12,13 @@ import org.wily.domain.MemberDTO;
 import org.wily.mail.MailUtils;
 import org.wily.mapper.MemberMapper;
 
+import lombok.AllArgsConstructor;
+import lombok.Setter;
+import lombok.extern.log4j.Log4j;
+
 @Service
+@Log4j
+@AllArgsConstructor
 public class MemberServiceImpl implements MemberService {
 	
 	@Autowired
@@ -21,7 +27,7 @@ public class MemberServiceImpl implements MemberService {
 	@Autowired
 	private JavaMailSender mailSender;
 	
-	@Autowired
+	@Setter(onMethod_=@Autowired)
 	private PasswordEncoder pwencoder;
 	
 	@Override

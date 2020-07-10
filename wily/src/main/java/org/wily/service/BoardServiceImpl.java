@@ -8,11 +8,13 @@ import org.wily.domain.BoardDTO;
 import org.wily.domain.StartDTO;
 import org.wily.mapper.BoardMapper;
 
+import lombok.AllArgsConstructor;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j;
 
 @Service
 @Log4j
+@AllArgsConstructor
 public class BoardServiceImpl implements BoardService {
 	
 	@Setter(onMethod_=@Autowired)
