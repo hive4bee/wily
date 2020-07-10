@@ -31,7 +31,9 @@ public class MemberController {
 	private MemberService memberService;
 	
 	/*
-	 * register() : 회원가입 폼 
+	 * method	: get
+	 * action	: 회원가입폼을 불러온다.
+	 * URI		: /wily/member/register
 	 */
 	@GetMapping("/register")
 	public void register() {
@@ -39,7 +41,9 @@ public class MemberController {
 	}
 	
 	/*
-	 * signUp() : 회원가입 절차
+	 * method	: post
+	 * action	: 회원가입처리한다.
+	 * URI		: /wily/member/signUp
 	 */
 	@PostMapping("/signUp")
 	public String signUp(MemberDTO memberDTO, Model model) {
@@ -54,6 +58,11 @@ public class MemberController {
 		return "/member/mail";
 	}
 	
+	/*
+	 * method	: post
+	 * action	: 회원상태를 변경한다.
+	 * URI		: /wily/member/confirmAuthKey
+	 */
 	@ResponseBody
 	@PostMapping("/confirmAuthKey")
 	public ResponseEntity<String> confirmAuthKey(@RequestBody EmailVO vo){
@@ -62,10 +71,22 @@ public class MemberController {
 			new ResponseEntity<>("success",HttpStatus.OK):
 				new ResponseEntity<>("fail",HttpStatus.OK);
 	}
+	
+	/*
+	 * method	: get
+	 * action	: 로그인폼을 가져온다.
+	 * URI		: /wily/member/loginForm
+	 */
 	@GetMapping("/loginForm")
 	public void loginForm(HttpServletRequest request) {
 		log.info("getRequestURI(): "+request.getRequestURI());
 	}
+	
+	/*
+	 * method	: post
+	 * action	: 로그인처리(security처리로 더 이상 사용하지 않는다)
+	 * URI		: /wily/member/loginPro
+	 */
 	@ResponseBody
 	@PostMapping("/loginPro")
 	public ResponseEntity<String> loginPro(@RequestBody IdPwdVO vo){
@@ -74,11 +95,21 @@ public class MemberController {
 				new ResponseEntity<>("success",HttpStatus.OK):
 					new ResponseEntity<>("fail",HttpStatus.OK);
 	}
+	
+	/*
+	 * method	: get
+	 * action	: 권한이 부족한 사용자를 막는다.
+	 * URI		:/wily/member/accessError
+	 */
 	@GetMapping("/accessError")
 	public void accessDenied(Authentication auth, Model model) {
 		log.info("access Denied...."+auth);
 		model.addAttribute("msg","Access Denied....");
 	}
+	
+	/*
+	 * action : 더 이상 사용하지 않는다.
+	 */
 	@GetMapping("/logoutForm")
 	public void logout() {
 		

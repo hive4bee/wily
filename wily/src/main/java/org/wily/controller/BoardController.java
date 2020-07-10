@@ -26,6 +26,11 @@ public class BoardController {
 	@Setter(onMethod_=@Autowired)
 	private BoardService boardService;
 	
+	/*
+	 * method	: get
+	 * action	: 리스트를 불러온다.
+	 * URI		: /wily/board/list
+	 */
 	@GetMapping("/list")
 	public void list(StartDTO startDTO, Model model){
 		log.info("=========================================");
@@ -40,18 +45,33 @@ public class BoardController {
 		model.addAttribute("pageMaker", new PageDTO(startDTO, total));
 	}
 	
+	/*
+	 * method	: get
+	 * action	: 입력폼을 불러온다.
+	 * URI		: /wily/board/writeForm
+	 */
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/writeForm")
 	public void writeForm() {
 		
 	}
 	
+	/*
+	 * method	: post
+	 * action	: DB입력
+	 * URI		: /wily/board/writePro
+	 */
 	@PostMapping("/writePro")
 	public String writePro(BoardDTO boardDTO) {
 		boardService.write(boardDTO);
 		return "redirect:/board/list";
 	}
 	
+	/*
+	 * method	: get
+	 * action	: 글 열람
+	 * URI		: /wily/board/viewDetail
+	 */
 	@GetMapping("/viewDetail")
 	public void viewDetail(String bno, StartDTO startDTO, Model model) {
 		log.info("bno: "+bno);
@@ -61,6 +81,11 @@ public class BoardController {
 		model.addAttribute("boardDTO", boardDTO);
 	}
 	
+	/*
+	 * method	: post
+	 * action	: 글 삭제
+	 * URI		: /wily/board/deletePro
+	 */
 	@PostMapping("/deletePro")
 	public String deletePro(String bno, StartDTO startDTO, Model model) {
 		log.info("=========================");
@@ -73,6 +98,11 @@ public class BoardController {
 		return "redirect:/board/list";
 	}
 	
+	/*
+	 * method	: get
+	 * action	: 수정폼을 불러온다.
+	 * URI		: /wily/board/modifyForm
+	 */
 	@GetMapping("/modifyForm")
 	public void modifyForm(String bno, StartDTO startDTO, Model model) {
 		log.info("=========================");
@@ -84,6 +114,11 @@ public class BoardController {
 		model.addAttribute("boardDTO", boardDTO);
 	}
 	
+	/*
+	 * method	: post
+	 * action	: 글을 수정한다.
+	 * URI		: /wily/board/modifyPro
+	 */
 	@PostMapping("/modifyPro")
 	public String modifyPro(BoardDTO boardDTO, StartDTO startDTO, Model model) {
 		log.info("=========================");
