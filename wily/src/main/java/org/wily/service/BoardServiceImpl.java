@@ -36,4 +36,24 @@ public class BoardServiceImpl implements BoardService {
 	public void write(BoardDTO boardDTO) {
 		boardMapper.write(boardDTO);
 	}
+	
+	@Override
+	public BoardDTO viewDetail(String bno) {
+		return boardMapper.viewDetail(bno);
+	}
+	
+	@Override
+	public void delete(String bno) {
+		boardMapper.delete(bno);
+	}
+	
+	@Override
+	public BoardDTO getModifyForm(String bno) {
+		return boardMapper.getModifyForm(bno);
+	}
+	
+	@Override
+	public void modifyPro(BoardDTO boardDTO) {
+		boardMapper.modifyPro(boardDTO);
+	}
 }

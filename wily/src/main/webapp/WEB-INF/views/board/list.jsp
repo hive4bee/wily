@@ -64,7 +64,7 @@
 									<c:forEach items="${list}" var="dto">
 									<tr>
 										<td>${dto.bno}</td>
-										<td>${dto.bsubject}</td>
+										<td><a class="viewDetail" href="${dto.bno}">${dto.bsubject}</a></td>
 										<td>${dto.mid}</td>
 										<td>${dto.bhit}</td>
 										<td><fmt:formatDate value="${dto.bregdate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
@@ -82,6 +82,12 @@
 		</div>
 	</div>
 </div>
+<form action="${ctxpath}/board/viewDetail" name="viewDetailForm">
+	<input type="hidden" name="bno" value="">
+	<input type="hidden" name="page" value="${pageMaker.st.page}">
+	<input type="hidden" name="amount" value="${pageMaker.st.amount}">
+	<input type="hidden" name="keyword" value="${pageMaker.st.keyword}">
+</form>
 <!-- 
 <script src="/wily/resources/vendor/datatables/jquery.dataTables.min.js"></script>
 <script src="/wily/resources/vendor/datatables/dataTables.bootstrap4.min.js"></script>
@@ -91,12 +97,13 @@
  -->
 <%@ include file="../include/pageFooter.jsp" %>
 <script>
-	/* 
-	$(".writeBtn").on("click", function(e){
-		e.preventDefault();
-		console.log("write btn clicked....");
-		
-	});
-	 */
+		$(".viewDetail").on("click", function(e){
+			e.preventDefault();
+			var bno=$(this).attr("href");
+			$("input[name='bno']").val(bno);
+			var formObj=$("form[name='viewDetailForm']");
+			
+			formObj.submit();
+		});
 </script>
 <%@ include file="../include/footer.jsp" %>

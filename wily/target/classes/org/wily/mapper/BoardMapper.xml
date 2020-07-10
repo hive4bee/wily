@@ -16,4 +16,25 @@
 		INSERT INTO tb_board(bno,mid,bsubject,bcontent,bregdate,bhit,bstatus,breplycnt)
 		VALUES(0,#{mid},#{bsubject},#{bcontent},NOW(),0,0,0)
 	</insert>
+	
+	<select id="viewDetail" resultType="org.wily.domain.BoardDTO">
+		SELECT * FROM tb_board
+		WHERE bno=#{bno}
+	</select>
+	
+	<delete id="delete">
+		DELETE FROM tb_board
+		WHERE bno=#{bno}
+	</delete>
+	
+	<select id="getModifyForm" resultType="org.wily.domain.BoardDTO">
+		SELECT * FROM tb_board
+		WHERE bno=#{bno}
+	</select>
+	
+	<update id="modifyPro">
+		UPDATE tb_board
+		SET bsubject=#{bsubject}, bcontent=#{bcontent}
+		WHERE bno=#{bno}
+	</update>
 </mapper>

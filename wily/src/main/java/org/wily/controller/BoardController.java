@@ -51,4 +51,47 @@ public class BoardController {
 		boardService.write(boardDTO);
 		return "redirect:/board/list";
 	}
+	
+	@GetMapping("/viewDetail")
+	public void viewDetail(String bno, StartDTO startDTO, Model model) {
+		log.info("bno: "+bno);
+		log.info("startDTO: "+startDTO);
+		BoardDTO boardDTO = boardService.viewDetail(bno);
+		model.addAttribute("startDTO", startDTO);
+		model.addAttribute("boardDTO", boardDTO);
+	}
+	
+	@PostMapping("/deletePro")
+	public String deletePro(String bno, StartDTO startDTO, Model model) {
+		log.info("=========================");
+		log.info("bno: "+bno);
+		log.info("startDTO: "+startDTO);
+		log.info("=========================");
+		boardService.delete(bno);
+		model.addAttribute("list", boardService.list(startDTO));
+		model.addAttribute("pageMaker", new PageDTO(startDTO, boardService.totalRecord(startDTO)));
+		return "redirect:/board/list";
+	}
+	
+	@GetMapping("/modifyForm")
+	public void modifyForm(String bno, StartDTO startDTO, Model model) {
+		log.info("=========================");
+		log.info("bno: "+bno);
+		log.info("startDTO: "+startDTO);
+		log.info("=========================");
+		BoardDTO boardDTO=boardService.getModifyForm(bno);
+		model.addAttribute("startDTO", startDTO);
+		model.addAttribute("boardDTO", boardDTO);
+	}
+	
+	@PostMapping("/modifyPro")
+	public String modifyPro(BoardDTO boardDTO, StartDTO startDTO, Model model) {
+		log.info("=========================");
+		log.info("boardDTO: "+boardDTO);
+		log.info("startDTO: "+startDTO);
+		log.info("=========================");
+		boardService.modifyPro(boardDTO);
+		model.addAttribute("startDTO", startDTO);
+		return "redirect:/board/list";
+	}
 }
