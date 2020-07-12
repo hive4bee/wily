@@ -186,7 +186,7 @@
 
 			for(var i=0,len=list.length||0; i<len; i++){
 				var dateObj=new Date(list[i].rregdate);
-				var yy=dateObj.getFullyear();
+				var yy=dateObj.getFullYear();
 				var mm=dateObj.getMonth()+1;
 				var dd=dateObj.getDate();
 				var hh=dateObj.getHours();
@@ -205,7 +205,7 @@
 				str+="<div class='col-lg-3'>";
 				str+="<small>"+yy+"-"+mm+"-"+dd+" "+hh+":"+mi+":"+ss+"</small>";
 				str+="</div></div>";
-				str+="<p>"+list.rcontent+"</p>";
+				str+="<p>"+list[i].rcontent+"</p>";
 				str+="<hr></li>";
 			}
 			$(".chat").html(str);
