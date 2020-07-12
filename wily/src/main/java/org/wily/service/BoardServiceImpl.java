@@ -23,7 +23,7 @@ public class BoardServiceImpl implements BoardService {
 	@Override
 	public List<BoardDTO> list(StartDTO startDTO) {
 		List<BoardDTO> list = boardMapper.list(startDTO);
-		log.info("service list: " + list);
+		//log.info("service list: " + list);
 		return list;
 	}
 	

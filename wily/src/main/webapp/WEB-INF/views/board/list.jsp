@@ -77,6 +77,27 @@
 							</table>
 						</div>
 					</div>
+					
+					<div class="row">
+						<div class="col-sm-12">
+							<div class="dataTables_paginate paging_simple_numbers" id="dataTable_paginate">
+								<ul class="pagination">
+									<li class="paginate_button page-item previous ${pageMaker.prev=='true' ? '':'disabled'}" id="dataTable_previous">
+										<a href="${pageMaker.startPage-1}" class="page-link">Previous</a>
+									</li>
+									<c:forEach var="num" begin="${pageMaker.startPage}" end="${pageMaker.endPage}">
+										<li class="paginate_button page-item ${pageMaker.st.page==num ? 'active':''}">
+											<a href="${num}" class="page-link">${num}</a>
+										</li>
+									</c:forEach>
+									<li class="paginate_button page-item next ${pageMaker.next=='true' ? '':'disabled' }" id="dataTable_next">
+										<a href="${pageMaker.endPage+1}" class="page-link">Next</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					
 				</div>
 			</div>
 		</div>
@@ -87,6 +108,10 @@
 	<input type="hidden" name="page" value="${pageMaker.st.page}">
 	<input type="hidden" name="amount" value="${pageMaker.st.amount}">
 	<input type="hidden" name="keyword" value="${pageMaker.st.keyword}">
+</form>
+<form action="${ctxpath}/board/list" name="listForm">
+	<input type="hidden" name="amount" value="${pageMaker.st.amount}">
+	
 </form>
 <!-- 
 <script src="/wily/resources/vendor/datatables/jquery.dataTables.min.js"></script>
@@ -104,6 +129,13 @@
 			var formObj=$("form[name='viewDetailForm']");
 			
 			formObj.submit();
+		});
+		$(".page-link").on("click", function(e){
+			e.preventDefault();
+			var page=$(this).attr("href");
+			var listFormObj=$("form[name='listForm']");
+			listFormObj.append("<input type='hidden' name='page' value='"+page+"'>");
+			listFormObj.submit();
 		});
 </script>
 <%@ include file="../include/footer.jsp" %>

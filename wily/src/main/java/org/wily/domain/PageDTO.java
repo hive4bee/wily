@@ -15,7 +15,7 @@ public class PageDTO {
 		this.st=st;
 		this.total=total;
 		
-		this.endPage=(int)(Math.ceil(st.getPage()/st.getAmount()) * 10);
+		this.endPage=(int)(Math.ceil((double)st.getPage()/(double)st.getAmount()) * 10);
 		this.startPage=this.endPage-9;
 		
 		int realEnd=(int)(Math.ceil((total*1.0)/st.getAmount()));

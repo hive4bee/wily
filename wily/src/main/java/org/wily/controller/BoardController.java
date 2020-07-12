@@ -9,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.wily.domain.BoardDTO;
 import org.wily.domain.PageDTO;
 import org.wily.domain.StartDTO;
@@ -33,16 +34,20 @@ public class BoardController {
 	 */
 	@GetMapping("/list")
 	public void list(StartDTO startDTO, Model model){
-		log.info("=========================================");
+		//log.info("=========================================");
+		log.info("startDTO: "+startDTO);
+		startDTO.setStartRecord((startDTO.getPage()-1)*startDTO.getAmount());
 		log.info("startDTO: "+startDTO);
 		List<BoardDTO> list = boardService.list(startDTO);
-		log.info("list: " + list);
-		list.forEach(record->log.info(record));
+		//log.info("list: " + list);
+		//list.forEach(record->log.info(record));
 		int total=boardService.totalRecord(startDTO);
-		log.info("total: " + total);
-		log.info("=========================================");
+		//log.info("total: " + total);
+		//log.info("=========================================");
+		PageDTO pageDTO = new PageDTO(startDTO, total);
+		log.info("pageDTO: "+pageDTO);
 		model.addAttribute("list", list);
-		model.addAttribute("pageMaker", new PageDTO(startDTO, total));
+		model.addAttribute("pageMaker", pageDTO);
 	}
 	
 	/*
@@ -74,8 +79,8 @@ public class BoardController {
 	 */
 	@GetMapping("/viewDetail")
 	public void viewDetail(String bno, StartDTO startDTO, Model model) {
-		log.info("bno: "+bno);
-		log.info("startDTO: "+startDTO);
+		//log.info("bno: "+bno);
+		//log.info("startDTO: "+startDTO);
 		BoardDTO boardDTO = boardService.viewDetail(bno);
 		model.addAttribute("startDTO", startDTO);
 		model.addAttribute("boardDTO", boardDTO);
@@ -88,10 +93,10 @@ public class BoardController {
 	 */
 	@PostMapping("/deletePro")
 	public String deletePro(String bno, StartDTO startDTO, Model model) {
-		log.info("=========================");
-		log.info("bno: "+bno);
-		log.info("startDTO: "+startDTO);
-		log.info("=========================");
+		//log.info("=========================");
+		//log.info("bno: "+bno);
+		//log.info("startDTO: "+startDTO);
+		//log.info("=========================");
 		boardService.delete(bno);
 		model.addAttribute("list", boardService.list(startDTO));
 		model.addAttribute("pageMaker", new PageDTO(startDTO, boardService.totalRecord(startDTO)));
@@ -105,10 +110,10 @@ public class BoardController {
 	 */
 	@GetMapping("/modifyForm")
 	public void modifyForm(String bno, StartDTO startDTO, Model model) {
-		log.info("=========================");
-		log.info("bno: "+bno);
-		log.info("startDTO: "+startDTO);
-		log.info("=========================");
+		//log.info("=========================");
+		//log.info("bno: "+bno);
+		//log.info("startDTO: "+startDTO);
+		//log.info("=========================");
 		BoardDTO boardDTO=boardService.getModifyForm(bno);
 		model.addAttribute("startDTO", startDTO);
 		model.addAttribute("boardDTO", boardDTO);
@@ -121,10 +126,10 @@ public class BoardController {
 	 */
 	@PostMapping("/modifyPro")
 	public String modifyPro(BoardDTO boardDTO, StartDTO startDTO, Model model) {
-		log.info("=========================");
-		log.info("boardDTO: "+boardDTO);
-		log.info("startDTO: "+startDTO);
-		log.info("=========================");
+		//log.info("=========================");
+		//log.info("boardDTO: "+boardDTO);
+		//log.info("startDTO: "+startDTO);
+		//log.info("=========================");
 		boardService.modifyPro(boardDTO);
 		model.addAttribute("startDTO", startDTO);
 		return "redirect:/board/list";
