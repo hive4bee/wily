@@ -64,7 +64,7 @@
 									<c:forEach items="${list}" var="dto">
 									<tr>
 										<td>${dto.bno}</td>
-										<td><a class="viewDetail" href="${dto.bno}">${dto.bsubject}</a></td>
+										<td><a class="viewDetail" href="${dto.bno}">${dto.bsubject} <strong>[${dto.breplycnt}]</strong></a></td>
 										<td>${dto.mid}</td>
 										<td>${dto.bhit}</td>
 										<td><fmt:formatDate value="${dto.bregdate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>

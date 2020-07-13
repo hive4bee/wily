@@ -37,4 +37,10 @@
 		SET bsubject=#{bsubject}, bcontent=#{bcontent}
 		WHERE bno=#{bno}
 	</update>
+	
+	<update id="updateRepliesCnt">
+		UPDATE tb_board
+		SET breplycnt=breplycnt+#{rNum}
+		WHERE bno=#{bno}
+	</update>
 </mapper>
