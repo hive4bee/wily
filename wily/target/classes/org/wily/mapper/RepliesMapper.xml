@@ -50,4 +50,9 @@
 	<select id="getReList" resultType="org.wily.domain.RepliesDTO">
 		SELECT * FROM tb_replies WHERE rgroup=#{rno} ORDER BY rregdate ASC
 	</select>
+	
+	<delete id="deleteRereply">
+		DELETE FROM tb_replies
+		WHERE rno=#{rno}
+	</delete>
 </mapper>

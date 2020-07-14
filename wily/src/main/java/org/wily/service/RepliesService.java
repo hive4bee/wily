@@ -20,5 +20,7 @@ public interface RepliesService {
 	public int addRereply(RepliesDTO repliesDTO);
 
 	public List<RepliesDTO> getReList(Long rno);
+
+	public int deleteRereply(Long rgroup, Long rno);
 	
 }

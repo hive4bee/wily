@@ -24,4 +24,6 @@ public interface RepliesMapper {
 	
 	public List<RepliesDTO> getReList(Long rno);
 	
+	public int deleteRereply(Long rno);
+	
 }

@@ -86,4 +86,12 @@ public class RepliesController {
 		log.info("rno: "+rno);
 		return new ResponseEntity<>(repliesService.getReList(rno), HttpStatus.OK);
 	}
+	
+	@DeleteMapping(value="/deleteRereply/{rgroup}/{rno}")
+	public ResponseEntity<String> deleteRereply(@PathVariable("rgroup") Long rgroup, @PathVariable("rno") Long rno){
+		int chk=repliesService.deleteRereply(rgroup, rno);
+		return chk==1?
+				new ResponseEntity<>("success", HttpStatus.OK):
+					new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	}
 }

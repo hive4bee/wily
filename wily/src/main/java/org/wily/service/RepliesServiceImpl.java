@@ -74,4 +74,13 @@ public class RepliesServiceImpl implements RepliesService {
 	public List<RepliesDTO> getReList(Long rno) {
 		return repliesMapper.getReList(rno);
 	}
+	
+	@Transactional
+	@Override
+	public int deleteRereply(Long rgroup, Long rno) {
+		int rNum=-1;
+		
+		repliesMapper.updateRerepliesCnt(rgroup, rNum);
+		return repliesMapper.deleteRereply(rno);
+	}
 }

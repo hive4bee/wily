@@ -152,12 +152,41 @@ repliesService=(function(){
 		});
 	}
 	
+	function deleteRereply(param, callback, error){
+		var rno=param.rno;
+		var rgroup=param.rgroup;
+		var csrfHeaderName=param.csrfHeaderName;
+		var csrfTokenValue=param.csrfTokenValue;
+		$.ajax({
+			type:"delete",
+			url:"/wily/replies/deleteRereply/"+rgroup+"/"+rno,
+			beforeSend:function(xhr){
+				xhr.setRequestHeader(csrfHeaderName, csrfTokenValue);
+			},
+			data:JSON.stringify({
+				rno:rno,bno:bno
+			}),
+			contentType:"application/json; charset=utf-8",
+			success:function(result, status, xhr){
+				if(callback){
+					callback(result);
+				}
+			},
+			error:function(xhr, status, err){
+				if(error){
+					error(err);
+				}
+			}
+		});
+	}
+	
 	return {
 		getList:getList,
 		addReply:addReply,
 		deleteReply:deleteReply,
 		modifyReply:modifyReply,
 		addRereply:addRereply,
-		getReList:getReList
+		getReList:getReList,
+		deleteRereply:deleteRereply
 	}
 })();
