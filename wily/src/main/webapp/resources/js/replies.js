@@ -14,6 +14,21 @@ repliesService=(function(){
 		});
 	}
 	
+	function getReList(param, callback, error){
+		var rno=param.rno;
+		var page=param.page||1;
+		$.getJSON("/wily/replies/re/"+rno+".json",function(data){
+			if(callback){
+				callback(data);
+				//callback(data);
+			}
+		}).fail(function(xhr, status, err){
+			if(error){
+				error();
+			}
+		});
+	}
+	
 	function addReply(param, callback, error){
 		
 		var bno=param.bno;
@@ -105,10 +120,44 @@ repliesService=(function(){
 		
 	}
 	
+	function addRereply(param, callback, error){
+		var rno=param.rno;
+		var bno=param.bno;
+		var mid=param.mid;
+		var rcontent=param.rcontent;
+		var rsup=param.rsup;
+		var csrfHeaderName=param.csrfHeaderName;
+		var csrfTokenValue=param.csrfTokenValue;
+		$.ajax({
+			type:"post",
+			url:'/wily/replies/addRereply',
+			beforeSend:function(xhr){
+				xhr.setRequestHeader(csrfHeaderName, csrfTokenValue);
+			},
+			data:JSON.stringify({
+				rno:rno,bno:bno,mid:mid,rsup:rsup,rcontent:rcontent
+			}),
+			contentType:"application/json; charset=utf-8",
+			success:function(result, status, xhr){
+				
+				if(callback){
+					callback(result);
+				}
+			},
+			error:function(xhr, status, err){
+				if(error){
+					error(err);
+				}
+			}
+		});
+	}
+	
 	return {
 		getList:getList,
 		addReply:addReply,
 		deleteReply:deleteReply,
-		modifyReply:modifyReply
+		modifyReply:modifyReply,
+		addRereply:addRereply,
+		getReList:getReList
 	}
 })();

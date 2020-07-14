@@ -60,4 +60,18 @@ public class RepliesServiceImpl implements RepliesService {
 	public int modifyReply(RepliesDTO repliesDTO) {
 		return repliesMapper.modifyReply(repliesDTO);
 	}
+	
+	@Transactional
+	@Override
+	public int addRereply(RepliesDTO repliesDTO) {
+		Long rno=repliesDTO.getRno();
+		int rNum=1;
+		repliesMapper.updateRerepliesCnt(rno, rNum);
+		return repliesMapper.addRereply(repliesDTO);
+	}
+	
+	@Override
+	public List<RepliesDTO> getReList(Long rno) {
+		return repliesMapper.getReList(rno);
+	}
 }

@@ -1,5 +1,7 @@
 package org.wily.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -68,5 +70,20 @@ public class RepliesController {
 		return repliesService.modifyReply(repliesDTO) == 1?
 				new ResponseEntity<>("success", HttpStatus.OK):
 					new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+	
+	@PostMapping(value="/addRereply", consumes="application/json", produces= {MediaType.TEXT_PLAIN_VALUE})
+	public ResponseEntity<String> addRereply(@RequestBody RepliesDTO repliesDTO){
+		log.info("repliesDTO: "+repliesDTO);
+		int cnt = repliesService.addRereply(repliesDTO);
+		return cnt == 1 ?
+				new ResponseEntity<>("success", HttpStatus.OK):
+					new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+	
+	@GetMapping(value="/re/{rno}", produces= {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
+	public ResponseEntity<List<RepliesDTO>> getReList(@PathVariable("rno") Long rno){
+		log.info("rno: "+rno);
+		return new ResponseEntity<>(repliesService.getReList(rno), HttpStatus.OK);
 	}
 }

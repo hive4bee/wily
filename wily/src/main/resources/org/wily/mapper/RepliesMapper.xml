@@ -12,7 +12,7 @@
 	<select id="getList" resultType="org.wily.domain.RepliesDTO">
 		SELECT * 
 		FROM tb_replies 
-		where bno=#{bno}
+		where bno=#{bno} and rgroup=0
 		LIMIT #{startDTO.startRecord},10
 	</select>
 	
@@ -35,4 +35,19 @@
 		SET rcontent=#{rcontent}
 		WHERE rno=#{rno}
 	</update>
+	
+	<update id="updateRerepliesCnt">
+		UPDATE tb_replies
+		SET rcnt=rcnt+#{rNum}
+		WHERE rno=#{rno}
+	</update>
+	
+	<insert id="addRereply">
+		INSERT INTO tb_replies(rno, bno, mid, rcontent, rregdate, rgroup, rsup)
+		VALUES(0, #{bno}, #{mid}, #{rcontent}, NOW(), #{rno}, #{rsup})
+	</insert>
+	
+	<select id="getReList" resultType="org.wily.domain.RepliesDTO">
+		SELECT * FROM tb_replies WHERE rgroup=#{rno} ORDER BY rregdate ASC
+	</select>
 </mapper>

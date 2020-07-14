@@ -18,4 +18,10 @@ public interface RepliesMapper {
 	
 	public int modifyReply(RepliesDTO repliesDTO);
 	
+	public void updateRerepliesCnt(@Param("rno") Long rno, @Param("rNum") int rNum);
+	
+	public int addRereply(RepliesDTO repliesDTO);
+	
+	public List<RepliesDTO> getReList(Long rno);
+	
 }

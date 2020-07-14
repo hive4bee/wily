@@ -11,6 +11,9 @@
 	}
 	li{
 		list-style-type:none;
+	}
+	.listLi{
+		list-style-type:none;
 		border-bottom:1px solid #cccccc;
 		margin-bottom:20px;
 	}
@@ -321,6 +324,126 @@
 		}
 		
 	});
+
+	////////////////////////////////////////////
+	//addrereplyBtn: 답글에 대해 답글달기를 눌렀을 경우
+	$(".chat").on("click", ".addrereplyBtn", function(e){
+		e.preventDefault();
+		console.log("addrereplyBtn button clicked....");
+		var rno = $(this).data("rno");
+		var rsup = $(this).data("rsup");
+		console.log("rno: "+rno+" / rsup: "+rsup);
+
+		var span=$(this).closest("li").find("span")
+
+		var str="";
+		str+="<div class='row'>";
+		str+="<div class='col-lg-8'>";
+		str+="<textarea class='form-control showTextArea'></textarea>";
+		str+="</div>";
+		str+="<div><button data-rno='"+rno+"' data-rsup='"+rsup+"' class='btn btn-primary addrereplybtn'>제출</button>&nbsp;";
+		str+="<button class='btn btn-primary cancelrereply'>취소</button></div>";
+		str+="</div>";
+		span.html(str);
+	});
+
+	////////////////////////////////////////////////////////
+	//cancelrereply: 답글에 대해 달급을 취소할 수 있다.
+	$(".chat").on("click", ".cancelrereply", function(e){
+		$(this).closest("span").empty();
+	});
+
+	//////////////////////////////////////////////////
+	//addrereplybtn: 답글에 대한 답글버튼을 누른다.
+	$(".chat").on("click", ".addrereplybtn", function(e){
+		e.preventDefault();
+		var rno=$(this).data("rno");
+		var rsup=$(this).data("rsup");
+		console.log("rno: "+rno+" / rsup: "+rsup);
+		var rcontent = $(this).closest("span").find("textarea").val();
+		var replyer;
+	    <sec:authorize access="isAuthenticated()">
+    		replyer = '<sec:authentication property="principal.username"/>';   
+    	</sec:authorize>
+		if(!rcontent){
+			alert("내용을 입력하셔야 합니다.");
+			return;
+		}else{
+			var csrfHeaderName = "${_csrf.headerName}";
+			var csrfTokenValue = "${_csrf.token}";
+			repliesService.addRereply({rno:rno,bno:bno,rsup:rsup,mid:replyer,rcontent:rcontent,csrfHeaderName:csrfHeaderName,csrfTokenValue:csrfTokenValue}
+			, function(){
+				showList(pageNum, bno);
+			})
+			return;
+		}
+	});
+
+	///////////////////////////////////////////////////
+	//rereply: 답글에 대한 답글 리스트를 가져온다.
+	$(".chat").on("click", ".rereply", function(e){
+		e.preventDefault();
+		console.log("rereply button clicked....");
+		var rno=$(this).attr("href");
+		var rechat=$(this).closest("li").find("ul");
+		
+		var str="";
+		
+		repliesService.getReList({rno:rno}, function(list){
+			var replyer;
+		    <sec:authorize access="isAuthenticated()">
+	    		replyer = '<sec:authentication property="principal.username"/>';   
+	    	</sec:authorize>
+			if(list==null || list.length==0){
+				return;
+			}
+
+			for(var i=0,len=list.length||0; i<len; i++){
+				//console.log(list[i]);
+				var dateObj=new Date(list[i].rregdate);
+				var yy=dateObj.getFullYear();
+				var mm=dateObj.getMonth()+1;
+				var dd=dateObj.getDate();
+				var hh=dateObj.getHours();
+				var mi=dateObj.getMinutes();
+				var ss=dateObj.getSeconds();
+				mm=mm<10 ? "0"+mm : mm;
+				dd=dd<10 ? "0"+dd : dd;
+				hh=hh<10 ? "0"+hh : hh;
+				mi=mi<10 ? "0"+mi : mi;
+				ss=ss<10 ? "0"+ss : ss;
+
+				str+="<li data-rno='"+list[i].rno+"'>";
+				str+="<div class='row'>";
+				str+="<div class='col-lg-1'></div>";
+				str+="<div class='col-lg-1'>";
+				str+="<strong class='primary-font'>"+list[i].mid+"</strong>";
+				str+="</div>";
+				str+="<div class='col-lg-3'>";
+				str+="<small>"+yy+"-"+mm+"-"+dd+" "+hh+":"+mi+":"+ss+"</small>";
+				str+="</div></div>";
+				str+="<div class='row'>";
+				str+="<div class='col-lg-1'></div><div class='col-lg-7'>";
+				str+="<p data-rcon='"+list[i].rcontent+"'>"+"<strong class='text-primary'>@"+list[i].rsup+"</strong>&nbsp;"+list[i].rcontent+"</p></div></div>";
+				str+="<div class='row'>";
+				str+="<div class='col-lg-1'></div>";
+				str+="<div class='col-lg-7'>";
+				if(replyer){
+					str+="<a href='#' data-rno='"+list[i].rno+"' data-rsup='"+list[i].mid+"' class='addrereplyBtn'>답글달기</a>&nbsp;&nbsp;&nbsp;";
+					if(replyer==list[i].mid){
+						str+="<a href='"+list[i].rno+"' class='reremod'>수정하기</a>&nbsp;&nbsp;&nbsp;";
+						str+="<a href='"+list[i].rno+"' class='reredel2'>삭제하기</a>";
+					}
+				}
+				str+="<hr></div></div>";
+				str+="</li>";
+				
+			}
+			rechat.html(str);
+		});
+		//console.log("str:"+str);
+		//rechat.html(str);
+	});
 		
 	//////////////////////////////////////////////
 	//showList(pageNum, bno): 게시글의 댓글 리스트를 보여준다.//
@@ -362,7 +485,7 @@
 				ss=ss<10 ? "0"+ss : ss;
 				str+="<li class='col-lg-8' data-bno='"+list[i].bno+"'>";
 				str+="<div class='row'>";
-				str+="<div class='col-lg-2'>";
+				str+="<div class='col-lg-1'>";
 				str+="<strong class='primary-font'>"+list[i].mid+"</strong>";
 				str+="</div>";
 				str+="<div class='col-lg-3'>";
@@ -371,14 +494,17 @@
 				str+="<p data-rcon='"+list[i].rcontent+"'>"+list[i].rcontent+"</p>";
 				str+="<div class='row'>";
 				str+="<div class='col-lg-8'>";
-				str+="<a href='"+list[i].rno+"' class='rereply'>답글<strong>["+list[i].rcnt+"]</strong></a>&nbsp;";
+				str+="<a href='"+list[i].rno+"' class='rereply'>답글<strong>["+list[i].rcnt+"]</strong></a>&nbsp;&nbsp;&nbsp;";
 				if(replyer){
+					str+="<a href='#' data-rno='"+list[i].rno+"' data-rsup='"+list[i].mid+"' class='addrereplyBtn'>답글달기</a>&nbsp;&nbsp;&nbsp;";
 					if(replyer==list[i].mid){
-						str+="<a href='"+list[i].rno+"' class='reremod'>수정하기</a>&nbsp;&nbsp;";
-						str+="<a href='"+list[i].rno+"' class='reredel'>삭제하기</a>&nbsp;&nbsp;";
+						str+="<a href='"+list[i].rno+"' class='reremod'>수정하기</a>&nbsp;&nbsp;&nbsp;";
+						str+="<a href='"+list[i].rno+"' class='reredel'>삭제하기</a>";
 					}
 				}
-				str+="</div>";
+				str+="<hr></div></div>";
+				str+="<span></span>";
+				str+="<div class='row'><ul class='col-lg-10 rechat'></ul></div>";
 				str+="</li>";
 			}
 			$(".chat").html(str);
