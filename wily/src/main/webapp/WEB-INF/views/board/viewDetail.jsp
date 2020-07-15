@@ -602,6 +602,78 @@
 		});
 	}
 
+	function imsishowList(pageNum, bno){
+		$.ajax({
+			url:"/wily/replies/pages/"+bno+"/"+pageNum,
+			type:"get",
+			data:{bno:bno, page:pageNum||1},
+			dataType:"json",
+			success:function(data){
+				list=data.list;
+				cnt=data.cnt;
+				console.log("start list....");
+				var replyer;
+			    <sec:authorize access="isAuthenticated()">
+		    		replyer = '<sec:authentication property="principal.username"/>';   
+		    	</sec:authorize>
+		    	
+				var str="";
+
+				if(list==null || list.length==0){
+					
+					str+="<li class='col-lg-8'>";
+					str+="<div class='row'>";
+					str+="<div class='col-lg-8'>";
+					str+="<strong class='primary-font'>첫 번째 댓글을 달아주세요!!!</strong>";
+					str+="</div></div></li>";
+					$(".chat").html(str);
+					
+					return;
+				}
+
+				for(var i=0,len=list.length||0; i<len; i++){
+					var dateObj=new Date(list[i].rregdate);
+					var yy=dateObj.getFullYear();
+					var mm=dateObj.getMonth()+1;
+					var dd=dateObj.getDate();
+					var hh=dateObj.getHours();
+					var mi=dateObj.getMinutes();
+					var ss=dateObj.getSeconds();
+					mm=mm<10 ? "0"+mm : mm;
+					dd=dd<10 ? "0"+dd : dd;
+					hh=hh<10 ? "0"+hh : hh;
+					mi=mi<10 ? "0"+mi : mi;
+					ss=ss<10 ? "0"+ss : ss;
+					str+="<li class='col-lg-8' data-bno='"+list[i].bno+"'>";
+					str+="<div class='row'>";
+					str+="<div class='col-lg-1'>";
+					str+="<strong class='primary-font'>"+list[i].mid+"</strong>";
+					str+="</div>";
+					str+="<div class='col-lg-3'>";
+					str+="<small>"+yy+"-"+mm+"-"+dd+" "+hh+":"+mi+":"+ss+"</small>";
+					str+="</div></div>";
+					str+="<p data-rcon='"+list[i].rcontent+"'>"+list[i].rcontent+"</p>";
+					str+="<div class='row'>";
+					str+="<div class='col-lg-8'>";
+					str+="<a href='"+list[i].rno+"' class='rereply dropdown-toggle' role='button' aria-haspopup='true' aria-expanded='false'>답글<strong>["+list[i].rcnt+"]</strong></a>&nbsp;&nbsp;&nbsp;";
+					if(replyer){
+						str+="<a href='#' data-rno='"+list[i].rno+"' data-rsup='"+list[i].mid+"' class='addrereplyBtn'>답글달기</a>&nbsp;&nbsp;&nbsp;";
+						if(replyer==list[i].mid){
+							str+="<a href='"+list[i].rno+"' class='reremod'>수정하기</a>&nbsp;&nbsp;&nbsp;";
+							str+="<a href='"+list[i].rno+"' class='reredel'>삭제하기</a>";
+						}
+					}
+					str+="<hr></div></div>";
+					str+="<span class='spanreply1'></span>";
+					str+="<div class='row'><ul class='col-lg-10 dropdown-list animated--grow-in'></ul></div>";
+					str+="</li>";
+				}
+				$(".chat").html(str);
+				showReplyCnt(cnt);
+			}
+		});
+	}
+
 	////////////////////////////////////////////////////////////////////
 	//showReplyCnt(replyCnt): 열람한 게시글의 댓글을 페이지 처리한다.(페이지당 10개씩 고정으로 처리)//
 	function showReplyCnt(replyCnt){

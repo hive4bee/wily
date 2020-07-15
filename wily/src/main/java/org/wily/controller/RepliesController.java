@@ -43,6 +43,8 @@ public class RepliesController {
 		StartDTO startDTO = new StartDTO();
 		startDTO.setStartRecord((page-1)*10);
 		RepliesPageDTO repliesPageDTO = repliesService.getList(startDTO, bno);
+		log.info("repliesPageDTO: "+repliesPageDTO);
+		
 		return new ResponseEntity<>(repliesPageDTO, HttpStatus.OK);
 	}
 	
