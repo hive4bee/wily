@@ -43,4 +43,10 @@
 		SET breplycnt=breplycnt+#{rNum}
 		WHERE bno=#{bno}
 	</update>
+	
+	<update id="increaseHit">
+		UPDATE tb_board
+		SET bhit=bhit+1
+		WHERE bno=#{bno}
+	</update>
 </mapper>

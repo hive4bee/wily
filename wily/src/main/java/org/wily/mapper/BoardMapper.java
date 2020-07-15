@@ -23,5 +23,7 @@ public interface BoardMapper {
 	public void modifyPro(BoardDTO boardDTO);
 
 	public void updateRepliesCnt(@Param("bno") Long bno, @Param("rNum") int rNum);
+
+	public void increaseHit(String bno);
 	
 }

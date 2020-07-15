@@ -2,14 +2,18 @@ package org.wily.controller;
 
 import java.util.List;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.wily.domain.BoardDTO;
 import org.wily.domain.PageDTO;
 import org.wily.domain.StartDTO;
@@ -76,14 +80,42 @@ public class BoardController {
 	 * method	: get
 	 * action	: 글 열람
 	 * URI		: /wily/board/viewDetail
+	 * view detail board (vdb)
 	 */
 	@GetMapping("/viewDetail")
-	public void viewDetail(String bno, StartDTO startDTO, Model model) {
+	public String viewDetail(String bno, StartDTO startDTO, Model model,
+						   HttpServletResponse response, HttpServletRequest request
+						   ) throws Exception {
 		//log.info("bno: "+bno);
 		//log.info("startDTO: "+startDTO);
+		
 		BoardDTO boardDTO = boardService.viewDetail(bno);
 		model.addAttribute("startDTO", startDTO);
 		model.addAttribute("boardDTO", boardDTO);
+		
+		Cookie[] checkVdb = request.getCookies();
+		int chk=0;
+		if(checkVdb != null && checkVdb.length>0) {
+			for(Cookie tempVdb:checkVdb) {//쿠키 확인
+				String imsi = tempVdb.getName();
+				log.info("....."+"vdb"+bno);
+				if(imsi.equals("vdb"+bno)) {
+					log.info("prevent from increasing hit");
+					chk++;
+					break;
+				}//end if
+			}//end for
+			if(chk==0) {
+				log.info("create new cookie!");
+				boardService.increaseHit(bno);
+				Cookie vdb=new Cookie("vdb"+bno,bno);
+				vdb.setMaxAge(60*10);//10분
+				response.addCookie(vdb);
+			}//end if
+		}//end if
+		
+		
+		return "/board/viewDetail";
 	}
 	
 	/*
