@@ -15,6 +15,7 @@
 		<security:intercept-url pattern="/board/writeForm"  access="hasRole('ROLE_MEMBER')" />
 		<security:intercept-url pattern="/board/loginCheck" access="hasRole('ROLE_MEMBER')" />
 		<security:intercept-url pattern="/replies/addReply" access="hasRole('ROLE_MEMBER')" />
+		<security:intercept-url pattern="/questions/loginCheck" access="hasRole('ROLE_MEMBER')" />
 	<!-- 
 		<security:access-denied-handler ref="customAccessDenied"/>
 		 -->

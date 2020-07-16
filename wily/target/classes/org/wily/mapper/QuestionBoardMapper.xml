@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.wily.mapper.QuestionBoardMapper">
+	
+	<select id="getQuestionList" resultType="org.wily.domain.QuestionBoardDTO">
+		SELECT * FROM tb_questionboard ORDER BY qregdate DESC LIMIT #{startRecord},#{amount}
+	</select>
+	
+	<select id="getQuestionTotal" resultType="int">
+		SELECT COUNT(*) FROM tb_questionboard
+	</select>
+	
+	<insert id="addQuestion">
+		INSERT INTO tb_questionboard(qno, mid, qsubject, qcontent, qregdate)
+		VALUES(0, #{mid}, #{qsubject}, #{qcontent}, NOW())
+	</insert>
+	
+	<select id="showDetailQuestion" resultType="org.wily.domain.QuestionBoardDTO">
+		SELECT * FROM tb_questionboard WHERE qno=#{qno}
+	</select>
+	
+	<delete id="deleteQuestion">
+		DELETE FROM tb_questionboard WHERE qno=#{qno}
+	</delete>
+	
+	<update id="modifyQuestion">
+		UPDATE tb_questionboard
+		SET qsubject=#{qsubject}, qcontent=#{qcontent}
+		WHERE qno=#{qno}
+	</update>
+</mapper>
