@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.coffee.mapper.ProductsMapper">
+	<select id="getCoffeeList2" resultType="org.coffee.domain.JoinedDTO">
+		<![CDATA[
+			SELECT * 
+			FROM (
+			    SELECT ROWNUM rn, pnum, pcode, pname, pprice, pcategory, pregdate, phide, uuid, uploadpath, filename
+			    FROM (
+			        SELECT 
+			            p.pnum, p.pcode, p.pname, p.pprice, p.pcategory, p.pregdate, p.phide, i.uuid, i.uploadpath, i.filename
+			        FROM products p JOIN images i ON(p.pnum = i.pnum)
+			        WHERE p.pcategory='커피' AND p.phide='y'
+			        ORDER BY p.pnum DESC
+			    )
+			    WHERE ROWNUM < #{startRecord}+8
+			)
+			WHERE rn >= #{startRecord}
+		]]>
+	<!-- 
+		<![CDATA[
+			SELECT *
+			FROM (
+			    SELECT 
+			        ROWNUM rn, p.pnum, p.pcode, p.pname, p.pprice, p.pcategory, p.pregdate, p.phide, i.uuid, i.uploadpath, i.filename
+			    FROM products p JOIN images i ON(p.pnum = i.pnum)
+			    WHERE rownum < #{startRecord}+8 AND p.pcategory='커피'
+			    ORDER BY ROWNUM DESC
+			)
+			WHERE rn >= #{startRecord}
+		]]>
+		 -->
+	</select>
+	
+	<select id="getCoffeeTotalCount2" resultType="int">
+		SELECT COUNT(*) FROM products WHERE pcategory='커피' AND phide='y'
+	</select>
+	
+	<select id="viewDetail" resultType="org.coffee.domain.JoinedDTO">
+		SELECT 
+	        ROWNUM rn, p.pnum, p.pcode, p.pname, p.pprice, p.pcomment, p.pcategory, p.pregdate, p.phide, i.uuid, i.uploadpath, i.filename
+	    FROM products p JOIN images i ON(p.pnum = i.pnum)
+	    WHERE p.pnum=#{pnum}
+	</select>
+	
+	<insert id="addToCart">
+		INSERT INTO cart
+		VALUES(cart_seq.nextval, #{mid}, #{pnum}, #{cqty})
+	</insert>
+	
+	<select id="searchCart" resultType="int">
+		SELECT COUNT(*) FROM cart
+		WHERE mid = #{mid} AND pnum = #{pnum}
+	</select>
+	
+	<update id="updateCart">
+		UPDATE cart
+		SET cqty=cqty + #{cqty}
+		WHERE mid=#{mid} AND pnum = #{pnum}
+	</update>
+	
+	<select id="checkCartQuantity" resultType="int">
+		SELECT COUNT(*) FROM cart WHERE mid=#{mid}
+	</select>
+	
+	<select id="getCartList" resultType="org.coffee.domain.CartDTO">
+		<![CDATA[
+	        SELECT 
+	            c.cnum, m.mid, p.pnum, p.pname, p.pprice, c.cqty, i.uuid, i.uploadpath, i.filename
+	        FROM members m JOIN cart c ON (m.mid = c.mid) JOIN products p ON(c.pnum = p.pnum) JOIN images i ON(p.pnum =i.pnum) 
+	        WHERE m.mid = #{mid}
+		]]>
+	</select>
+	<update id="updateProductFromCart">
+		UPDATE cart
+		SET cqty = #{cqty}
+		WHERE cnum = #{cnum}
+	</update>
+	<delete id="deleteProductFromCart">
+		DELETE FROM cart
+		WHERE cnum=#{cnum}
+	</delete>
+	
+	<select id="getOrderList" resultType="org.coffee.domain.CartProductDTO">
+		SELECT c.cnum, c.cqty, p.pnum, p.pname, p.pprice
+		FROM cart c JOIN products p ON (c.pnum = p.pnum)
+		WHERE mid = #{mid} AND cnum IN
+		<foreach collection="cnum" item="item" index="index" separator="," open="(" close=")">
+			#{item}
+		</foreach>
+	</select>
+	<insert id="insertOrder">
+		INSERT INTO orders
+		VALUES(#{onum}, #{mid}, #{oname}, #{opn}, #{oemail}, #{oaddr}, #{ocomment}, #{opay}, #{odate}, #{otime}, SYSDATE, '주문접수')
+	</insert>
+	
+	<delete id="deleteAfterOrder">
+		DELETE FROM cart
+		WHERE cnum = #{cnum}
+	</delete>
+	<insert id="insertOrderDetail">
+		INSERT INTO orders_detail
+		VALUES(#{onum}, #{pnum}, #{oqty})
+	</insert>
+	<select id="getOrderDetailList" resultType="org.coffee.domain.OrderProductDTO">
+		SELECT p.pnum, p.pname, p.pprice, i.uploadpath, i.uuid, i.filename, o.onum, o.oqty, m.oregdate, m.odate, m.otime, m.oaddr, m.ostatus, m.mid
+		FROM products p JOIN images i ON(p.pnum=i.pnum) JOIN orders_detail o ON(i.pnum=o.pnum) JOIN orders m ON(m.onum=o.onum)
+		WHERE o.onum=#{onum}
+	</select>
+	
+	<select id="getOrderDetailList2" resultType="org.coffee.domain.OrderProductDTO">
+		SELECT p.pnum, p.pname, p.pprice, i.uploadpath, i.uuid, i.filename, o.onum, o.oqty, m.oregdate, m.odate, m.otime, m.oaddr, m.ostatus, m.mid
+		FROM products p JOIN images i ON(p.pnum=i.pnum) JOIN orders_detail o ON(i.pnum=o.pnum) JOIN orders m ON (m.onum=o.onum)
+		WHERE m.mid=#{mid}
+		ORDER BY m.onum DESC
+	</select>
+	
+	
+	
+	<select id="checkLike" resultType="int">
+		SELECT COUNT(*) FROM likes
+		WHERE mid=#{mid} AND pnum=#{pnum}
+	</select>
+	
+	<insert id="insertLike">
+		INSERT INTO likes(lno, mid, pnum)
+		VALUES(likes_seq.nextval, #{mid}, #{pnum})
+	</insert>
+	<delete id="deleteLike">
+		DELETE FROM likes
+		WHERE mid=#{mid} AND pnum=#{pnum}
+	</delete>
+	<select id="viewMyLikesList" resultType="org.coffee.domain.JoinedDTO">
+		<![CDATA[
+			SELECT * 
+			FROM (
+			    SELECT ROWNUM rn, pnum, pcode, pname, pprice, pcategory, pregdate, phide, uuid, uploadpath, filename
+			    FROM (
+			        SELECT 
+			            p.pnum, p.pcode, p.pname, p.pprice, p.pcategory, p.pregdate, p.phide, i.uuid, i.uploadpath, i.filename
+			        FROM images i JOIN products p ON(p.pnum = i.pnum) JOIN likes l ON(p.pnum = l.pnum)
+			        WHERE p.pcategory='커피' AND l.mid=#{mid}
+			        ORDER BY p.pnum DESC
+			    )
+			    WHERE ROWNUM < #{st.startRecord}+8
+			)
+			WHERE rn >= #{st.startRecord}
+		]]>
+	</select>
+	<select id="getMyLikesTotal" resultType="int">
+		SELECT COUNT(*) 
+		FROM products p JOIN likes l
+		ON(p.pnum = l.pnum) 
+		WHERE p.pcategory='커피' AND l.mid=#{mid}
+	</select>
+	
+</mapper>

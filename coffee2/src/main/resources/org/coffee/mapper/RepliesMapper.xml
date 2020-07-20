@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.coffee.mapper.RepliesMapper">
+	
+	<insert id="register">
+		<selectKey resultType="long" keyProperty="rno" order="BEFORE">
+			SELECT replies_seq.nextval FROM dual
+		</selectKey>
+		INSERT INTO replies(rno, fno, reply, mid, replydate, rgroup)
+		VALUES(#{rno}, #{fno}, #{reply}, #{mid}, SYSDATE, #{rno})
+	</insert>
+	
+	<insert id="register2">
+		
+		<selectKey resultType="long" keyProperty="rstep" order="BEFORE">
+			SELECT NVL(MAX(rstep),0)+1 FROM replies WHERE rgroup=#{rgroup}
+		</selectKey>
+		INSERT INTO replies(rno, fno, reply, mid, replydate, rgroup, rstep)
+		VALUES(replies_seq.nextval, #{fno}, #{reply}, #{mid}, SYSDATE, #{rgroup}, #{rstep})
+	</insert>
+	
+	<select id="getList" resultType="org.coffee.domain.RepliesDTO">
+		<![CDATA[
+			SELECT *
+			FROM (
+			    SELECT /*+ INDEX_DESC(replies replies_rno_pk) */
+			        ROWNUM rn, rno, reply, mid, replydate, rgroup, rstep, rtotal
+			    FROM replies
+			    WHERE fno=#{fno} AND rstep=0 AND rownum < #{startDTO.startRecord}+10
+			)
+			WHERE rn >= #{startDTO.startRecord}
+		]]>
+	</select>
+	
+	<select id="getTotalCount" resultType="int">
+		SELECT COUNT(rno) FROM replies WHERE fno=#{fno} AND rstep=0
+	</select>
+	
+	<delete id="remove">
+		DELETE FROM replies WHERE rno=#{rno}
+	</delete>
+	
+	<update id="modify">
+		UPDATE replies SET reply=#{reply} WHERE rno=#{rno}
+	</update>
+	
+	<select id="getReList" resultType="org.coffee.domain.RepliesDTO">
+		<![CDATA[
+			SELECT /*+INDEX_ASC(REPLIES replies_rno_pk) */ *
+			FROM replies
+			WHERE rgroup=#{rno} AND rstep >0
+		]]>
+	</select>
+	
+	<update id="updateReReplyCnt">
+		UPDATE replies
+		SET rtotal=rtotal+#{num}
+		WHERE rno=#{rno}
+	</update>
+</mapper>

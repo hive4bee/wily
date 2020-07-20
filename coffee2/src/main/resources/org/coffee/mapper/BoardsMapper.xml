@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.coffee.mapper.BoardsMapper">
+	<select id="getList" resultType="org.coffee.domain.BoardsDTO">
+		<![CDATA[
+			SELECT *
+			FROM (
+			    SELECT /*+ INDEX_DESC(freeboard freeboard_fno_pk) */
+			        ROWNUM rn, fno, mid, subject, content, hit, replycnt, f_indate
+			    FROM freeboard
+			    WHERE rownum < #{startRecord}+10)
+			WHERE rn >= #{startRecord}
+		]]>
+	</select>
+	<!-- SELECT * FROM freeboard WHERE fno > 0 ORDER BY fno DESC LIMIT #{startRecord}, 10 -->
+	<select id="getTotalCount" resultType="int">
+		<![CDATA[
+			SELECT COUNT(*) FROM freeboard WHERE fno > 0
+		]]>
+	</select>
+	
+	<insert id="write">
+		INSERT INTO freeboard
+		VALUES(freeboard_seq.nextval, #{mid}, #{subject}, #{content}, 0, 0, SYSDATE)
+	</insert>
+	
+	<select id="read" resultType="org.coffee.domain.BoardsDTO">
+		SELECT * FROM freeboard WHERE fno = #{fno}
+	</select>
+	
+	<update id="update">
+		UPDATE freeboard
+		SET subject=#{subject}, content=#{content}
+		WHERE fno=#{fno}
+	</update>
+	
+	<delete id="delete">
+		DELETE FROM freeboard
+		WHERE fno=#{fno}
+	</delete>
+	
+	<update id="updateReplyCnt">
+		UPDATE freeboard SET replycnt = replycnt + #{num} WHERE fno=#{fno}
+	</update>
+</mapper>

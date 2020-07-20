@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.coffee.mapper.UserMessageMapper">
+	<insert id="insertMessage">
+		INSERT INTO user_message
+		VALUES(user_message_seq.nextval, #{mid}, #{u_sub}, #{u_msg}, '관리자', 'n', SYSDATE)
+	</insert>
+	
+	<select id="checkMessageQ" resultType="int">
+		SELECT COUNT(*) FROM user_message WHERE mid=#{mid} AND u_status LIKE 'n'
+	</select>
+	
+	<select id="getMessageL" resultType="org.coffee.domain.UserMessageDTO">
+	<![CDATA[
+		SELECT * 
+		FROM (
+			SELECT * 
+			FROM user_message 
+			WHERE mid=#{mid}
+			AND u_status='n'
+			ORDER BY u_reg DESC
+		)
+		WHERE ROWNUM <=3
+		]]>
+	</select>
+	
+	<select id="getUserMessageList" resultType="org.coffee.domain.UserMessageDTO">
+		<![CDATA[
+			SELECT *
+			FROM (
+			    SELECT 
+			        ROWNUM rn, u_no, mid, u_sub, u_from, u_status, u_reg
+			    FROM user_message
+			    WHERE rownum < #{startDTO.startRecord}+10
+			    AND mid = #{mid}
+			    ORDER BY u_reg DESC
+			)
+			WHERE rn >= #{startDTO.startRecord}
+		]]>
+	</select>
+	
+	<select id="getTotalCount" resultType="int">
+		<![CDATA[
+			SELECT COUNT(*) FROM user_message WHERE u_no > 0 AND mid=#{mid}
+		]]>
+	</select>
+	
+	<select id="read" resultType="org.coffee.domain.UserMessageDTO">
+		SELECT * FROM user_message WHERE u_no = #{u_no}
+	</select>
+	
+	<select id="checkReadStatus" resultType="String">
+		SELECT u_status FROM user_message WHERE u_no=#{u_no} AND mid=#{mid}
+	</select>
+	
+	<update id="changeStatus">
+		UPDATE user_message
+		SET u_status='y'
+		WHERE u_no=#{u_no} AND mid=#{mid}
+	</update>
+	
+	<delete id="delete">
+		DELETE FROM user_message WHERE u_no = #{u_no}
+	</delete>
+</mapper>

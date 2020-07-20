@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.coffee.mapper.ShopsMapper">
+	<select id="getShopsList" resultType="org.coffee.domain.ShopsDTO">
+		SELECT * FROM shop WHERE addr LIKE '%' || #{key} || '%'
+	</select>
+	
+	<select id="getAddress" resultType="String">
+		SELECT addr FROM shop WHERE snum=#{snum}
+	</select>
+</mapper>
