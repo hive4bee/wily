@@ -5,6 +5,7 @@ import org.coffee.domain.PageDTO;
 import org.coffee.domain.StartDTO;
 import org.coffee.service.BoardsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,10 +23,10 @@ import lombok.extern.log4j.Log4j;
 public class BoardsController {
 	@Setter(onMethod_ = @Autowired)
 	private BoardsService service;
+
 	
 	@GetMapping("/list")
 	public void list(StartDTO st, Model model) {
-		
 		log.info("======"+st.getPage());
 		st.setStartRecord((st.getPage()-1)*10+1);
 		log.info("=============="+st.getStartRecord());

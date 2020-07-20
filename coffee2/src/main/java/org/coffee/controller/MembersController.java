@@ -17,6 +17,7 @@ import org.coffee.domain.Imsi2VO;
 import org.coffee.domain.MembersDTO;
 import org.coffee.service.MembersServiceImpl;
 import org.coffee.service.ProductsService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -41,13 +42,20 @@ public class MembersController {
 	
 	private ProductsService productsService;
 	
+	@Value("#{emailInfo['email.username']}")
+	private String emailUsername;
+	
+	@Value("${emailInfo['email.password']}")
+	private String emailPassword;
+	
 	@GetMapping("/index")
 	public void index() {
-		
+		log.info("emailUsername:"+emailUsername);
+		log.info("emailPassword:"+emailPassword);
 	}
 	
 	@GetMapping(value="/register")
-	public void register() {
+	public void register(Model model) {
 		
 	}
 	
@@ -60,8 +68,8 @@ public class MembersController {
 		//service.register(dto);
 		//return "redirect:/";
 		String host = "smtp.naver.com";
-		final String user="eprot@naver.com";
-		final String password="Ythfeb94!#";
+		final String user=emailUsername;
+		final String password=emailPassword;
 		
 		String to_email = dto.getMemail();
 		
@@ -108,16 +116,16 @@ public class MembersController {
 			msg.setFrom(new InternetAddress(user, "IMSI"));
 			msg.addRecipient(Message.RecipientType.TO, new InternetAddress(to_email));
 
-			//硫붿씪 �젣紐�
+			//제목
 			msg.setSubject("안녕하세요  인증 메일입니다.");
-			//硫붿씪 �궡�슜
+			//인증번호
 			msg.setText("인증 번호 : " + temp);
 
 			Transport.send(msg);
-			System.out.println("�이메일 전송");
+			System.out.println("이메일 전송");
 
 		} catch (Exception e) {
-			e.printStackTrace();// TODO: handle exception
+			e.printStackTrace();
 		}
 		
 		model.addAttribute("dto", dto);

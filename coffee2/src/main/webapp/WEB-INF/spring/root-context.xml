@@ -7,30 +7,20 @@
 		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
 	
-	<!-- Root Context: defines shared resources visible to all other web components -->
-		<!-- <property name="jdbcUrl"
-			value="jdbc:log4jdbc:oracle:thin:@localhost:1521:xe"></property> -->
-	<!-- 		
-	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
-
-		<property name="driverClassName"
-			value="net.sf.log4jdbc.sql.jdbcapi.DriverSpy"></property>
-		<property name="jdbcUrl"
-			value="jdbc:log4jdbc:oracle:thin:@192.168.134.128:1521:orcl"></property>
-		<property name="username" value="coffee"></property>
-		<property name="password" value="1234"></property>
-
-	</bean>
-	 -->
+	 
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location" value="/WEB-INF/config/db.properties"/>
+        <property name="fileEncoding" value="UTF-8" />
+    </bean>
 	
 	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
 
 		<property name="driverClassName"
 			value="net.sf.log4jdbc.sql.jdbcapi.DriverSpy"></property>
 		<property name="jdbcUrl"
-			value="jdbc:log4jdbc:oracle:thin:@192.168.56.73:1521:xe"></property>
-		<property name="username" value="coffee"></property>
-		<property name="password" value="1234"></property>
+			value="${db.url}"></property>
+		<property name="username" value="${db.username}"></property>
+		<property name="password" value="${db.password}"></property>
 
 	</bean>
 	
