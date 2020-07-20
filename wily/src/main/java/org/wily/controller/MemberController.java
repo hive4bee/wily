@@ -1,11 +1,15 @@
 package org.wily.controller;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -78,9 +82,25 @@ public class MemberController {
 	 * URI		: /wily/member/loginForm
 	 */
 	@GetMapping("/loginForm")
-	public void loginForm(HttpServletRequest request) {
-		log.info("getRequestURI(): "+request.getRequestURI());
+	public String loginForm(HttpServletRequest request, HttpServletResponse response) {
+		
+//		RequestCache requestCache=new HttpSessionRequestCache();
+//		SavedRequest savedRequest = requestCache.getRequest(request, response);
+//		
+//		try {
+//			log.info("getRedirectUrl(): "+savedRequest.getRedirectUrl());
+//		}catch(NullPointerException e) {
+//			log.info("referer: "+request.getHeader("referer"));
+//		}
+		log.info("=====================================");
+		String referer = request.getHeader("Referer");
+		log.info("referer: "+referer);
+		request.getSession().setAttribute("prevPage", referer);
+		log.info("=====================================");
+		return "/member/loginForm";
 	}
+	
+	
 	
 	/*
 	 * method	: post

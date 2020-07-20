@@ -102,6 +102,10 @@
   <script src="/wily/resources/js/sb-admin-2.min.js"></script>
   <script>
 	$(document).ready(function(){
+		var prevPage='<c:out value="${prevPage}"/>';
+		if(prevPage){
+			
+		}
 		$("#mid").on("blur",function(){
 			var mid=$(this).val().trim();
 			if(!mid){

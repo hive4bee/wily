@@ -23,6 +23,13 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
 			Authentication authentication) throws IOException, ServletException {
 		log.warn("Login Success");
 		
+		String prevPage=null;
+		if(request.getSession().getAttribute("prevPage")!=null) {
+			prevPage=request.getSession().getAttribute("prevPage").toString();
+		}else {
+			prevPage="/";
+		}
+		
 		List<String> roleNames=new ArrayList<>();
 		
 		authentication.getAuthorities().forEach(authority->{
@@ -35,7 +42,7 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
 			ObjectMapper objm = new ObjectMapper(); 
 			RedirectDTO rdto = new RedirectDTO();
 			rdto.setStatus("OK");
-			rdto.setUrl("/wily/");
+			rdto.setUrl(prevPage);
 			response.getWriter().print(objm.writeValueAsString(rdto));
 			response.getWriter().flush();
 		}

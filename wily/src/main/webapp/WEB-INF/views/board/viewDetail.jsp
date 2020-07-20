@@ -12,11 +12,15 @@
 	li{
 		list-style-type:none;
 	}
+	.listLi{
+		list-style-type:none;
+		border-bottom:1px solid #cccccc;
+		margin-bottom:20px;
+	}
 	ul{
 		padding-left:0px;
 	}
 </style>
-<sec:authentication property="principal" var="pinfo"/>
 <div class="container-fluid justify-content-center">
 	<h1 class="h3 ml-2 mb-2 text-gray-800">${boardDTO.bno}번 글</h1>
 	
@@ -26,6 +30,7 @@
 			<div class="col-sm-12 ml-2 mt-2 mb-5">
 				<a href="#" class="btn btn-primary listBtn">리스트</a>
 				<sec:authorize access="isAuthenticated()">
+					<sec:authentication property="principal" var="pinfo"/>
 					<c:if test="${pinfo.username eq boardDTO.mid}">
 						<a href="#" class="btn btn-primary modifyBtn">수정하기</a>
 						<a href="#" class="btn btn-primary deleteBtn">삭제하기</a>
@@ -77,6 +82,17 @@
 						</div>
 					</div>
 					<p>댓글이 없는 게시글일 경우 내가 보여요....</p>
+					<div class="row">
+						<div class="col-lg-5">
+							<a class="rereply">답글<strong>[0]</strong></a>&nbsp;
+						
+						
+							<a href="#">수정하기</a>&nbsp;
+						
+						
+							<a href="#">삭제하기</a>
+						</div>
+					</div>
 					<hr>
 					
 				</li>
@@ -114,9 +130,16 @@
 	<input type="hidden" name="amount" value="">
 	<input type="hidden" name="keyword" value="">
 </form>
+<form action="${ctxpath}/board/loginCheck" name="loginCheck">
+</form>
 <script src="${ctxpath}/resources/js/replies.js"></script>
 <script>
+	////////////////////////////////////
+	//pageNum: 열람한 게시글의 현재 댓글 페이지 번호이다.// 
 	var pageNum=1;
+	var bno='<c:out value="${boardDTO.bno}"/>';
+	////////////////////////////////////
+	//listBtn: 게시글의 리스트 버튼을 클릭하면 목록으로 이동한다.//
 	$(".listBtn").on("click", function(e){
 		e.preventDefault();
 		console.log("list button clicked....");
@@ -132,6 +155,9 @@
 		var listFormObj=$("form[name='listForm']");
 		listFormObj.submit();
 	});
+
+	////////////////////////////////////
+	//modifyBtn: 게시글의 수정버튼을 클릭하면 수정화면으로 이동한다.
 	$(".modifyBtn").on("click", function(e){
 		e.preventDefault();
 		console.log("modify button clicked....");
@@ -148,11 +174,14 @@
 		var modifyFormObj=$("form[name='modifyForm']")
 		modifyFormObj.submit();
 	});
+
+	///////////////////////////////////////
+	//deleteBtn: 게시글의 삭제버튼을 클릭하면 알림창을 띄워 확인한다.//
 	$(".deleteBtn").on("click", function(e){
 		e.preventDefault()
 		console.log("delete button clicked....");
-		confirm("정말로 지우시겠습니까?");
-		if(confirm){
+		var chk=confirm("정말로 지우시겠습니까?");
+		if(chk){
 			var bno='<c:out value="${boardDTO.bno}"/>';
 			var page='<c:out value="${startDTO.page}"/>';
 			var amount='<c:out value="${startDTO.amount}"/>';
@@ -168,19 +197,366 @@
 		}
 	});
 	
+	////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
+	
+	$("#reply").on("focus", function(){
+		var replyer="";
+		<sec:authorize access="isAuthenticated()">
+			replyer = '<sec:authentication property="principal.username"/>';   
+		</sec:authorize>
+		if(!replyer){
+			var loginCheckFormObj=$("form[name='loginCheck']");
+			loginCheckFormObj.submit();
+		}
+	});
+
+	///////////////////////////////////////////////
+	//newReply(): 게시글에 대해 댓글을 작성한다.//
+	$("#addReplyBtn").on("click", function(e){
+		e.preventDefault();
+		console.log("reply button clicked....");
+		var replyer;
+	    <sec:authorize access="isAuthenticated()">
+    		replyer = '<sec:authentication property="principal.username"/>';   
+    	</sec:authorize>
+    	var rcontent=$("#reply").val().trim();
+		if(!rcontent){
+			alert("댓글을 입력하셔야 합니다.");
+			return;
+		}
+		
+		if(!replyer){
+			console.log("..........");
+			var loginCheckFormObj=$("form[name='loginCheck']");
+			loginCheckFormObj.submit();
+			return ;
+		}else{
+			var csrfHeaderName = "${_csrf.headerName}";
+			var csrfTokenValue = "${_csrf.token}";
+			//repliesService.addReply({bno:bno, mid:replyer, rcontent:rcontent,csrfHeaderName:csrfHeaderName,csrfTokenValue:csrfTokenValue},function(result){
+			repliesService.addReply({bno:bno, mid:replyer, rcontent:rcontent, csrfHeaderName:csrfHeaderName,csrfTokenValue:csrfTokenValue},function(result){
+				$("#reply").val("");
+				showList(pageNum, bno);
+			});
+		}
+	});
+
+	////////////////////////////////////////////
+	//pagelink: 댓글부분의 페이지 숫자를 누르면 해당 페이지로 이동한다.
+	$(".pagination").on("click", ".page-link", function(e){
+		e.preventDefault();
+		console.log("pagination button clicked....");
+		pageNum=$(this).attr("href");
+		showList(pageNum, bno);
+	});
+
+	////////////////////////////////////////////
+	//reredel: 댓글을 삭제한다. 댓글 작성자와 일치한 유저만 가능하다.//
+	$(".chat").on("click", ".reredel", function(e){
+		e.preventDefault();
+		console.log("delete button clicked....");
+		var bno=$(this).closest("li").data("bno");
+		var rno=$(this).attr("href");
+		console.log("bno: "+bno+" / rno: "+rno);
+		
+		var chk=confirm("정말로 지우시겠습니까?");
+		if(chk){
+			var csrfHeaderName = "${_csrf.headerName}";
+			var csrfTokenValue = "${_csrf.token}";
+			repliesService.deleteReply({rno:rno, bno:bno,csrfHeaderName:csrfHeaderName,csrfTokenValue:csrfTokenValue}, function(){
+				showList(pageNum, bno);
+			});
+		}
+		
+	});
+
+	////////////////////////////////////////////
+	//reremod: 댓글을 수정한다. 댓글 작성자와 일치한 유저만 가능하다.//
+	$(".chat").on("click", ".reremod", function(e){
+		e.preventDefault();
+		var rno = $(this).attr("href");
+		console.log("modify button clicked....");
+		var li = $(this).closest("li");
+		//console.log("li: "+li.html());
+		var rcontent=$(this).closest("li").find("p").data("rcon");
+		console.log("rcontent: "+rcontent);
+		var str="";
+		str+="<div class='row'>";
+		str+="<div class='col-lg-8'><textarea class='form-control modifyReply'>"+rcontent+"</textarea></div>";
+		str+="<div class='col-lg-2'><button data-rno='"+rno+"' class='btn btn-primary modifyReplyBtn'>수정하기</button></div>";
+		str+="<div class='col-lg-2'><button data-bak='"+li.html()+"' class='btn btn-primary cancelBtn'>취소하기</button></div><hr>";
+		str+="</div>";
+		li.empty().html(str);
+	});
+
+	//////////////////////////////////
+	//cancelBtn: 댓글을 수정하던 중 취소할 수 있다.//
+	$(".chat").on("click", ".cancelBtn", function(e){
+		e.preventDefault();
+		var bak=$(this).data("bak");
+		console.log("bak: "+bak);
+		$(this).closest("li").empty().html(bak);
+		//showList(pageNum, bno);
+	});
+
+	/////////////////////////////////////
+	//modifyReply: 수정폼에서 수정할 경우 수정처리하여 유저에게 결과를 보여준다.
+	$(".chat").on("click", ".modifyReplyBtn", function(e){
+		e.preventDefault();
+		console.log("modify btn clicked....");
+		var rno = $(this).data("rno");
+		var rcontent=$(this).closest("li").find("textarea").val();
+		console.log("rcontent: "+rcontent);
+		if(!rcontent){
+			alert("내용을 입력하셔야 합니다.");
+		}else{
+			//console.log("....");
+			var chk=confirm("정말로 수정하시겠습니까?");
+			if(chk){
+				var csrfHeaderName = "${_csrf.headerName}";
+				var csrfTokenValue = "${_csrf.token}";
+				repliesService.modifyReply({rno:rno, rcontent:rcontent,csrfHeaderName:csrfHeaderName,csrfTokenValue:csrfTokenValue}, function(){
+					showList(pageNum, bno);
+				});
+			}
+		}
+		
+	});
+
+	////////////////////////////////////////////
+	//addrereplyBtn: 답글에 대해 답글달기를 눌렀을 경우
+	$(".chat").on("click", ".addrereplyBtn", function(e){
+		e.preventDefault();
+		console.log("addrereplyBtn button clicked....");
+		var rno = $(this).data("rno");
+		var rsup = $(this).data("rsup");
+		console.log("rno: "+rno+" / rsup: "+rsup);
+
+		var span=$(this).closest("li").find("span[class='spanreply1']")
+
+		var str="";
+		str+="<div class='row'>";
+		str+="<div class='col-lg-8'>";
+		str+="<textarea class='form-control showTextArea'></textarea>";
+		str+="</div>";
+		str+="<div><button data-rno='"+rno+"' data-rsup='"+rsup+"' class='btn btn-primary addrereplybtn'>제출</button>&nbsp;";
+		str+="<button class='btn btn-primary cancelrereply'>취소</button></div>";
+		str+="</div>";
+		span.html(str);
+	});
+	$(".chat").on("click", ".addrereplyBtn2", function(e){
+		e.preventDefault();
+		console.log("addrereplyBtn button clicked....");
+		var rgroup = $(this).data("rgroup");
+		var rsup = $(this).data("rsup");
+
+		var span=$(this).closest("li").find("span[class='spanreply2']")
+
+		var str="";
+		str+="<div class='row'>";
+		str+="<div class='col-lg-1'></div>"
+		str+="<div class='col-lg-8'>";
+		str+="<textarea class='form-control showTextArea'></textarea>";
+		str+="</div>";
+		str+="<div><button data-rno='"+rgroup+"' data-rsup='"+rsup+"' class='btn btn-primary addrereplybtn'>제출</button>&nbsp;";
+		str+="<button class='btn btn-primary cancelrereply'>취소</button></div>";
+		str+="</div>";
+		span.html(str);
+	});
+
+	////////////////////////////////////////////////////////
+	//cancelrereply: 답글에 대해 달급을 취소할 수 있다.
+	$(".chat").on("click", ".cancelrereply", function(e){
+		$(this).closest("span").empty();
+	});
+
+	//////////////////////////////////////////////////
+	//addrereplybtn: 답글에 대한 답글버튼을 누른다.
+	$(".chat").on("click", ".addrereplybtn", function(e){
+		e.preventDefault();
+		var rno=$(this).data("rno");
+		var rsup=$(this).data("rsup");
+		console.log("rno: "+rno+" / rsup: "+rsup);
+		var rcontent = $(this).closest("span").find("textarea").val();
+		var replyer;
+	    <sec:authorize access="isAuthenticated()">
+    		replyer = '<sec:authentication property="principal.username"/>';   
+    	</sec:authorize>
+		if(!rcontent){
+			alert("내용을 입력하셔야 합니다.");
+			return;
+		}else{
+			var csrfHeaderName = "${_csrf.headerName}";
+			var csrfTokenValue = "${_csrf.token}";
+			repliesService.addRereply({rno:rno,bno:bno,rsup:rsup,mid:replyer,rcontent:rcontent,csrfHeaderName:csrfHeaderName,csrfTokenValue:csrfTokenValue}
+			, function(){
+				showList(pageNum, bno);
+			})
+			return;
+		}
+	});
+
+	///////////////////////////////////////////////////
+	//rereply: 답글에 대한 답글 리스트를 가져온다.
+	$(".chat").on("click", ".rereply", function(e){
+		e.preventDefault();
+		console.log("rereply button clicked....");
+		var rno=$(this).attr("href");
+		var rechat=$(this).closest("li").find("ul");
+		var rechathtml=rechat.html();
+		var str="";
+		
+		if(!rechathtml){
+			repliesService.getReList({rno:rno}, function(list){
+				var replyer;
+			    <sec:authorize access="isAuthenticated()">
+		    		replyer = '<sec:authentication property="principal.username"/>';   
+		    	</sec:authorize>
+				if(list==null || list.length==0){
+					return;
+				}
+	
+				for(var i=0,len=list.length||0; i<len; i++){
+					//console.log(list[i]);
+					var dateObj=new Date(list[i].rregdate);
+					var yy=dateObj.getFullYear();
+					var mm=dateObj.getMonth()+1;
+					var dd=dateObj.getDate();
+					var hh=dateObj.getHours();
+					var mi=dateObj.getMinutes();
+					var ss=dateObj.getSeconds();
+					mm=mm<10 ? "0"+mm : mm;
+					dd=dd<10 ? "0"+dd : dd;
+					hh=hh<10 ? "0"+hh : hh;
+					mi=mi<10 ? "0"+mi : mi;
+					ss=ss<10 ? "0"+ss : ss;
+	
+					str+="<li data-rno='"+list[i].rgroup+"'>";
+					str+="<div class='row'>";
+					str+="<div class='col-lg-1'></div>";
+					str+="<div class='col-lg-1'>";
+					str+="<strong class='primary-font'>"+list[i].mid+"</strong>";
+					str+="</div>";
+					str+="<div class='col-lg-3'>";
+					str+="<small>"+yy+"-"+mm+"-"+dd+" "+hh+":"+mi+":"+ss+"</small>";
+					str+="</div></div>";
+					str+="<div class='row'>";
+					str+="<div class='col-lg-1'></div><div class='col-lg-7'>";
+					str+="<p data-rcon2='"+list[i].rcontent+"'>"+"<strong class='text-primary'>@"+list[i].rsup+"</strong>&nbsp;"+list[i].rcontent+"</p></div></div>";
+					str+="<div class='row'>";
+					str+="<div class='col-lg-1'></div>";
+					str+="<div class='col-lg-7'>";
+					if(replyer){
+						str+="<a href='#' data-rgroup='"+list[i].rgroup+"' data-rsup='"+list[i].mid+"' class='addrereplyBtn2'>답글달기</a>&nbsp;&nbsp;&nbsp;";
+						if(replyer==list[i].mid){
+							str+="<a href='"+list[i].rno+"' class='reremod2'>수정하기</a>&nbsp;&nbsp;&nbsp;";
+							str+="<a href='"+list[i].rno+"' data-rgroup='"+list[i].rgroup+"' class='reredel2'>삭제하기</a>";
+						}
+					}
+					str+="<hr></div></div>";
+					str+="<span class='spanreply2'></span>";
+					str+="</li>";
+					
+				}
+				rechat.html(str);
+			});
+		}
+		
+		
+		//console.log("str:"+str);
+		//rechat.html(str);
+	});
+
+	////////////////////////////////////////////
+	//reredel2: 답글에 대한 답글 지우기
+	$(".chat").on("click", ".reredel2", function(e){
+		e.preventDefault();
+		var rno = $(this).attr("href");
+		var rgroup=$(this).data("rgroup");
+		console.log("rno: "+rno+" / rgroup: "+rgroup);
+		var csrfHeaderName = "${_csrf.headerName}";
+		var csrfTokenValue = "${_csrf.token}";
+		var chk=confirm("정말로 지우시겠습니까?");
+		if(chk){
+			repliesService.deleteRereply({rno:rno, rgroup:rgroup,csrfHeaderName:csrfHeaderName,csrfTokenValue:csrfTokenValue}, function(result){
+				if(result=='success'){
+					showList(pageNum, bno);
+				}
+			});
+		}
+		
+	});
+
+	/////////////////////////////////////////////
+	//reremod2: 답글에 대한 답글 수정버튼을 클릭했을 때
+	$(".chat").on("click", ".reremod2", function(e){
+		e.preventDefault();
+		console.log("reremod2 button clicked....");
+		var rno=$(this).attr("href");
+		var li=$(this).closest("li");
+		var rcontent=$(this).closest("li").find("p").data("rcon2");
+		var str="";
+		str+="<div class='row'>";
+		str+="<div class='col-lg-1'></div>";
+		str+="<div class='col-lg-8'><textarea class='form-control modifyRereply'>"+rcontent+"</textarea></div>";
+		str+="<div class='col-lg-2'><button data-rno='"+rno+"' class='btn btn-primary modifyRereplyBtn'>수정</button>&nbsp;";
+		str+="<button data-bak='"+li.html()+"' class='btn btn-primary cancelReBtn'>취소</button></div><hr>";
+		str+="</div>";
+		li.empty().html(str);
+	});
+
+	////////////////////////////////////////////////
+	//cancelReBtn: 답글에 대한 답글을 수정하다가 취소할 수 있다.
+	$(".chat").on("click", ".cancelReBtn", function(e){
+		e.preventDefault();
+		var bak=$(this).data("bak");
+		$(this).closest("li").empty().html(bak);
+	});
+
+	////////////////////////////////////////////
+	//modifyRereplyBtn: 답글에 대한 답글 수정 버튼을 누르면 수정할 수 있다.
+	$(".chat").on("click", ".modifyRereplyBtn", function(e){
+		e.preventDefault();
+		var rno=$(this).data("rno");
+		var rcontent=$(this).closest("li").find("textarea").val();
+		if(!rcontent){
+			alert("내용을 입력하셔야 합니다.");
+		}else{
+			var chk=confirm("정말로 수정하시겠습니까?");
+			if(chk){
+				var csrfHeaderName="${_csrf.headerName}";
+				var csrfTokenValue="${_csrf.token}";
+				repliesService.modifyReply({rno:rno, rcontent:rcontent,csrfHeaderName:csrfHeaderName,csrfTokenValue:csrfTokenValue}, function(){
+					showList(pageNum, bno);
+				});
+			}
+		}
+	});
+		
+	//////////////////////////////////////////////
+	//showList(pageNum, bno): 게시글의 댓글 리스트를 보여준다.//
 	function showList(pageNum, bno){
 		console.log("show list....");
-		repliesService.getList({bno:bno, page:pageNum||1}, function(list){
+		repliesService.getList({bno:bno, page:pageNum||1}, function(replyCnt,list){
 			console.log("start list....");
+			var replyer;
+		    <sec:authorize access="isAuthenticated()">
+	    		replyer = '<sec:authentication property="principal.username"/>';   
+	    	</sec:authorize>
+	    	
 			var str="";
 
 			if(list==null || list.length==0){
+				
 				str+="<li class='col-lg-8'>";
 				str+="<div class='row'>";
-				str+="<div class='col-lg-2'>";
+				str+="<div class='col-lg-8'>";
 				str+="<strong class='primary-font'>첫 번째 댓글을 달아주세요!!!</strong>";
 				str+="</div></div></li>";
 				$(".chat").html(str);
+				
 				return;
 			}
 
@@ -197,22 +573,109 @@
 				hh=hh<10 ? "0"+hh : hh;
 				mi=mi<10 ? "0"+mi : mi;
 				ss=ss<10 ? "0"+ss : ss;
-				str+="<li class='col-lg-8'>";
+				str+="<li class='col-lg-8' data-bno='"+list[i].bno+"'>";
 				str+="<div class='row'>";
-				str+="<div class='col-lg-2'>";
+				str+="<div class='col-lg-1'>";
 				str+="<strong class='primary-font'>"+list[i].mid+"</strong>";
 				str+="</div>";
 				str+="<div class='col-lg-3'>";
 				str+="<small>"+yy+"-"+mm+"-"+dd+" "+hh+":"+mi+":"+ss+"</small>";
 				str+="</div></div>";
-				str+="<p>"+list[i].rcontent+"</p>";
-				str+="<hr></li>";
+				str+="<p data-rcon='"+list[i].rcontent+"'>"+list[i].rcontent+"</p>";
+				str+="<div class='row'>";
+				str+="<div class='col-lg-8'>";
+				str+="<a href='"+list[i].rno+"' class='rereply dropdown-toggle' role='button' aria-haspopup='true' aria-expanded='false'>답글<strong>["+list[i].rcnt+"]</strong></a>&nbsp;&nbsp;&nbsp;";
+				if(replyer){
+					str+="<a href='#' data-rno='"+list[i].rno+"' data-rsup='"+list[i].mid+"' class='addrereplyBtn'>답글달기</a>&nbsp;&nbsp;&nbsp;";
+					if(replyer==list[i].mid){
+						str+="<a href='"+list[i].rno+"' class='reremod'>수정하기</a>&nbsp;&nbsp;&nbsp;";
+						str+="<a href='"+list[i].rno+"' class='reredel'>삭제하기</a>";
+					}
+				}
+				str+="<hr></div></div>";
+				str+="<span class='spanreply1'></span>";
+				str+="<div class='row'><ul class='col-lg-10 dropdown-list animated--grow-in'></ul></div>";
+				str+="</li>";
 			}
 			$(".chat").html(str);
-			//showReplyCnt(replyCnt);
+			showReplyCnt(replyCnt);
 		});
 	}
 
+	function imsishowList(pageNum, bno){
+		$.ajax({
+			url:"/wily/replies/pages/"+bno+"/"+pageNum,
+			type:"get",
+			data:{bno:bno, page:pageNum||1},
+			dataType:"json",
+			success:function(data){
+				list=data.list;
+				cnt=data.cnt;
+				console.log("start list....");
+				var replyer;
+			    <sec:authorize access="isAuthenticated()">
+		    		replyer = '<sec:authentication property="principal.username"/>';   
+		    	</sec:authorize>
+		    	
+				var str="";
+
+				if(list==null || list.length==0){
+					
+					str+="<li class='col-lg-8'>";
+					str+="<div class='row'>";
+					str+="<div class='col-lg-8'>";
+					str+="<strong class='primary-font'>첫 번째 댓글을 달아주세요!!!</strong>";
+					str+="</div></div></li>";
+					$(".chat").html(str);
+					
+					return;
+				}
+
+				for(var i=0,len=list.length||0; i<len; i++){
+					var dateObj=new Date(list[i].rregdate);
+					var yy=dateObj.getFullYear();
+					var mm=dateObj.getMonth()+1;
+					var dd=dateObj.getDate();
+					var hh=dateObj.getHours();
+					var mi=dateObj.getMinutes();
+					var ss=dateObj.getSeconds();
+					mm=mm<10 ? "0"+mm : mm;
+					dd=dd<10 ? "0"+dd : dd;
+					hh=hh<10 ? "0"+hh : hh;
+					mi=mi<10 ? "0"+mi : mi;
+					ss=ss<10 ? "0"+ss : ss;
+					str+="<li class='col-lg-8' data-bno='"+list[i].bno+"'>";
+					str+="<div class='row'>";
+					str+="<div class='col-lg-1'>";
+					str+="<strong class='primary-font'>"+list[i].mid+"</strong>";
+					str+="</div>";
+					str+="<div class='col-lg-3'>";
+					str+="<small>"+yy+"-"+mm+"-"+dd+" "+hh+":"+mi+":"+ss+"</small>";
+					str+="</div></div>";
+					str+="<p data-rcon='"+list[i].rcontent+"'>"+list[i].rcontent+"</p>";
+					str+="<div class='row'>";
+					str+="<div class='col-lg-8'>";
+					str+="<a href='"+list[i].rno+"' class='rereply dropdown-toggle' role='button' aria-haspopup='true' aria-expanded='false'>답글<strong>["+list[i].rcnt+"]</strong></a>&nbsp;&nbsp;&nbsp;";
+					if(replyer){
+						str+="<a href='#' data-rno='"+list[i].rno+"' data-rsup='"+list[i].mid+"' class='addrereplyBtn'>답글달기</a>&nbsp;&nbsp;&nbsp;";
+						if(replyer==list[i].mid){
+							str+="<a href='"+list[i].rno+"' class='reremod'>수정하기</a>&nbsp;&nbsp;&nbsp;";
+							str+="<a href='"+list[i].rno+"' class='reredel'>삭제하기</a>";
+						}
+					}
+					str+="<hr></div></div>";
+					str+="<span class='spanreply1'></span>";
+					str+="<div class='row'><ul class='col-lg-10 dropdown-list animated--grow-in'></ul></div>";
+					str+="</li>";
+				}
+				$(".chat").html(str);
+				showReplyCnt(cnt);
+			}
+		});
+	}
+
+	////////////////////////////////////////////////////////////////////
+	//showReplyCnt(replyCnt): 열람한 게시글의 댓글을 페이지 처리한다.(페이지당 10개씩 고정으로 처리)//
 	function showReplyCnt(replyCnt){
 		var endNum=Math.ceil(pageNum/10.0)*10;
 		var startNum=endNum-9;
@@ -247,10 +710,12 @@
 			str+="<li class='paginate_button page-item next disabled' id='dataTable_next'>";
 		}
 		str+="<a href='"+(endNum+1)+"' class='page-link'>Next</a>";
-		$(".pagication").html(str);
+		$(".pagination").html(str);
 	}
+
+	//////////////////////////////////////////////////
+	//document ready: 페이지가 로드됐을 경우 실행된다. 주로 댓글 관련/////
 	$(document).ready(function(){
-		var bno='<c:out value="${boardDTO.bno}"/>';
 		showList(pageNum, bno);
 	});
 </script>

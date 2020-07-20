@@ -56,4 +56,9 @@ public class BoardServiceImpl implements BoardService {
 	public void modifyPro(BoardDTO boardDTO) {
 		boardMapper.modifyPro(boardDTO);
 	}
+	
+	@Override
+	public void increaseHit(String bno) {
+		boardMapper.increaseHit(bno);
+	}
 }

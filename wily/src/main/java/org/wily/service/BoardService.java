@@ -20,4 +20,6 @@ public interface BoardService {
 	public BoardDTO getModifyForm(String bno);
 
 	public void modifyPro(BoardDTO boardDTO);
+
+	public void increaseHit(String bno);
 }
